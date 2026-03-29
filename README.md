@@ -116,5 +116,10 @@ npm start
 ```
 <img width="1892" height="879" alt="Screenshot 2026-03-28 232927" src="https://github.com/user-attachments/assets/2fcf77ae-983e-40a8-afa9-9b612153930e" />
 <img width="1898" height="886" alt="Screenshot 2026-03-28 232910" src="https://github.com/user-attachments/assets/bf2bfc6a-d192-4ccf-8311-f26bab05d2ec" />
-<img width="1452" height="959" alt="Screenshot 2026-03-29 130148" src="https://github.com/user-attachments/assets/893f5dfb-2bfb-45be-9162-a46001e644fb" />
+
+
+<img width="1882" height="875" alt="Screenshot 2026-03-28 232846" src="https://github.com/user-attachments/assets/1b8f289c-dc85-4bbd-aa2c-b892079355c7" />
+
+
+
 <img width="1904" height="903" alt="Screenshot 2026-03-29 161430" src="https://github.com/user-attachments/assets/fb8005a1-9ee9-4f60-bd01-f51264bb3cea" />

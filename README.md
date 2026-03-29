@@ -14,53 +14,74 @@ This platform allows users to upload their **resume** and **target job descripti
 - Identifies **skill gaps**
 - Generates **technical + behavioral interview questions**
 - Provides a **personalized roadmap**
-- Simulates **HR interview using AI agent**
-- Generates an **ATS-friendly resume**
+- Simulates **HR interview using AI agent (including voice interaction)**
+- Generates an **ATS-friendly resume (downloadable PDF)**
 
 ---
 
 ## ✨ Features
 
-### 🔐 Authentication
+### 🔐 Authentication & Security
 - Secure login/signup using **JWT Authentication**
+- **Token Blacklisting Implementation** for enhanced security
 
-### 📄 Resume Analysis
+---
+
+### 📄 Resume Parsing & Analysis
 - Upload resume (PDF)
-- AI extracts skills and experience
-- Compare with job description
+- **Resume Parsing & Skill Extraction Logic**
+- Extracts skills, experience, and keywords using AI
 
-### 🎯 Match Score & Skill Gap
-- Resume vs Job Description scoring
-- Highlights missing skills
+---
+
+### 🎯 AI-Based Skill Gap Detection
+- Resume vs Job Description comparison
+- Calculates **match score**
+- Identifies missing skills
 - Suggests improvements
+
+---
 
 ### 🧠 AI Interview Preparation
 - Technical Questions
 - Behavioral Questions
-- Previous Year HR Questions
-- Personalized based on resume
-
-### 🤖 AI HR Interview Agent
-- Real-time AI interview simulation
-- Asks questions based on:
-  - Resume
-  - Job role
-
-### 🗺️ Roadmap Generator
-- Personalized learning roadmap
-- Suggests skills to improve
-
-### 📥 ATS-Friendly Resume Generator
-- AI-generated optimized resume
-- Downloadable format
+- Previous Year HR Interview Questions
+- Personalized based on resume + job role
 
 ---
 
-## 🛠️ Tech Stack
+### 🤖 AI Interview Agent (Voice Enabled)
+- Real-time AI HR Interview simulation
+- **Voice-based interaction support**
+- Dynamic questioning based on:
+  - Resume
+  - Target job role
+
+---
+
+### 🗺️ Personalized Roadmap Generator
+- Step-by-step roadmap to improve skills
+- Industry-relevant recommendations
+
+---
+
+### 📥 ATS-Optimized Resume Generator
+- AI-generated resume optimized for ATS systems
+- Clean, structured format
+- Downloadable as PDF
+
+---
+
+### 📄 Dynamic PDF Generation
+- **Puppeteer integration** for generating high-quality resumes
+- Ensures professional formatting
+
+---
+
+## 🛠️ Tech Stack Used
 
 ### Frontend
 - React.js
-- HTML, CSS, JavaScript
 
 ### Backend
 - Node.js
@@ -69,13 +90,24 @@ This platform allows users to upload their **resume** and **target job descripti
 ### Database
 - MongoDB
 
-### AI Integration
-- OpenAI API (Gen AI features)
-
 ### Authentication
 - JWT (JSON Web Token)
+- Token Blacklisting
+
+### AI Integration
+- Gemini API (Google Generative AI)
+
+### PDF Generation
+- Puppeteer
 
 ---
+
+## 🏗️ System Architecture
+
+- Full Stack Web Application Architecture (MERN-based)
+- RESTful API design
+- Modular backend structure (MVC pattern)
+- Scalable and maintainable codebase
 
 ---
 

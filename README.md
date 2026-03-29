@@ -107,10 +107,13 @@ OPENAI_API_KEY=your_openai_key
 
 
 # Backend
+```
 npm run dev
-
+````
 # Frontend
+```
 npm start
+```
 
 <img width="1452" height="959" alt="Screenshot 2026-03-29 130148" src="https://github.com/user-attachments/assets/893f5dfb-2bfb-45be-9162-a46001e644fb" />
 <img width="1892" height="879" alt="Screenshot 2026-03-28 232927" src="https://github.com/user-attachments/assets/2fcf77ae-983e-40a8-afa9-9b612153930e" />

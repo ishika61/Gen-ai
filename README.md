@@ -121,12 +121,14 @@ cd your-repo
 
 # Backend
 cd server
+```
 npm install
-
+```
 # Frontend
 cd ../client
+```
 npm install
-
+```
 
 
 3️⃣ Setup environment variables:-

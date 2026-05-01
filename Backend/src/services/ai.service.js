@@ -1,228 +1,268 @@
 
-// const { GoogleGenAI } = require("@google/genai");
-// const { z } = require("zod");
-// const { zodToJsonSchema } = require("zod-to-json-schema");
 // const puppeteer = require("puppeteer");
 
-// const ai = new GoogleGenAI({
-//     apiKey: process.env.GOOGLE_GENAI_API_KEY
-// });
+// const GEMINI_MODEL = "gemini-1.5-flash";
 
-// const interviewReportSchema = z.object({
-//     matchScore: z.number(),
-//     technicalQuestions: z.array(z.object({
-//         question: z.string(),
-//         intention: z.string(),
-//         answer: z.string()
-//     })),
-//     behavioralQuestions: z.array(z.object({
-//         question: z.string(),
-//         intention: z.string(),
-//         answer: z.string()
-//     })),
-//     skillGaps: z.array(z.object({
-//         skill: z.string(),
-//         severity: z.enum(["low", "medium", "high"])
-//     })),
-//     preparationPlan: z.array(z.object({
-//         day: z.number(),
-//         focus: z.string(),
-//         tasks: z.array(z.string())
-//     })),
-//     title: z.string()
-// });
+// function extractJson(text) {
+//     if (!text) return null;
 
-// async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
 //     try {
-//         const prompt = `Generate an interview report for a candidate with the following details:
-//         Resume: ${resume}
-//         Self Description: ${selfDescription}
-//         Job Description: ${jobDescription}
-//         `;
-
-//         const response = await ai.models.generateContent({
-//             model: "gemini-3-flash-preview",
-//             contents: prompt,
-//             config: {
-//                 responseMimeType: "application/json",
-//                 responseSchema: zodToJsonSchema(interviewReportSchema),
-//             }
-//         });
-
-//         console.log("AI RAW:", response.text);
-
-//         let parsed;
+//         return JSON.parse(text);
+//     } catch (_) {
+//         const match = text.match(/\{[\s\S]*\}/);
+//         if (!match) return null;
 
 //         try {
-//             parsed = JSON.parse(response.text);
-//         } catch (err) {
-//             console.log("JSON Parse Error:", err.message);
+//             return JSON.parse(match[0]);
+//         } catch (_) {
+//             return null;
 //         }
-
-//         if (Array.isArray(parsed)) {
-//             parsed = parsed[0];
-//         }
-
-//         if (!parsed || typeof parsed !== "object") {
-//             throw new Error("Invalid AI response");
-//         }
-
-//         // 🔥 TECH QUESTIONS (12+)
-//      let techQuestions = (parsed.technical_assessment || parsed.interview_questions_suggested || []).map(item => ({
-//     question: item,
-//     intention: "Technical evaluation",
-//     answer: "Explain with real-world examples"
-// }));
-
-// // 🔥 FORCE ADD QUESTIONS (VERY IMPORTANT)
-// const extraQuestions = [
-//     "Explain difference between REST and GraphQL",
-//     "What is JWT authentication?",
-//     "Explain React lifecycle and hooks",
-//     "Difference between SQL and NoSQL",
-//     "What is middleware in Express?",
-//     "Explain event loop in JavaScript",
-//     "What are closures?",
-//     "Explain async/await vs promises",
-//     "How does MongoDB indexing work?",
-//     "Explain MVC architecture",
-//     "What is virtual DOM in React?",
-//     "Difference between useState and useEffect"
-// ];
-
-// // ✅ ALWAYS MAKE AT LEAST 12 QUESTIONS
-// while (techQuestions.length < 12) {
-//     const q = extraQuestions[techQuestions.length % extraQuestions.length];
-
-//     techQuestions.push({
-//         question: q,
-//         intention: "Concept clarity",
-//         answer: "Explain with examples"
-//     });
+//     }
 // }
-//         // 🔥 BEHAVIORAL QUESTIONS
-//         const behavioralQuestions = [
+
+// function fallbackInterviewReport({ selfDescription, jobDescription }) {
+//     return {
+//         matchScore: 65,
+//         title: jobDescription?.slice(0, 50) || "Interview Report",
+//         technicalQuestions: [
 //             {
-//                 question: "Tell me about yourself",
-//                 intention: "Communication",
-//                 answer: selfDescription || "Explain your background"
+//                 question: "Explain your main project architecture.",
+//                 intention: "To check practical project understanding.",
+//                 answer: "Explain frontend, backend, database, authentication, APIs, and your contribution."
+//             },
+//             {
+//                 question: "What is the difference between SQL and NoSQL databases?",
+//                 intention: "To test database knowledge.",
+//                 answer: "SQL uses structured tables and schemas. NoSQL like MongoDB stores flexible document-based data."
+//             },
+//             {
+//                 question: "How does JWT authentication work?",
+//                 intention: "To check authentication understanding.",
+//                 answer: "After login, the server signs a token. The client sends it with requests, and the server verifies it."
+//             },
+//             {
+//                 question: "What is middleware in Express.js?",
+//                 intention: "To test backend fundamentals.",
+//                 answer: "Middleware functions run between request and response and are used for auth, validation, logging, and error handling."
+//             },
+//             {
+//                 question: "What are React hooks?",
+//                 intention: "To check React knowledge.",
+//                 answer: "Hooks like useState and useEffect allow functional components to manage state and side effects."
+//             }
+//         ],
+//         behavioralQuestions: [
+//             {
+//                 question: "Tell me about yourself.",
+//                 intention: "To evaluate communication and confidence.",
+//                 answer: selfDescription || "Briefly explain your education, skills, projects, and career goal."
 //             },
 //             {
 //                 question: "Why should we hire you?",
-//                 intention: "Confidence",
-//                 answer: "Highlight skills and projects"
+//                 intention: "To understand your value for the role.",
+//                 answer: "Connect your skills, projects, learning ability, and interest in the company role."
 //             },
 //             {
-//                 question: "Describe a challenging project",
-//                 intention: "Problem-solving",
-//                 answer: "Explain approach and outcome"
-//             },
-//             {
-//                 question: "Tell me about a failure",
-//                 intention: "Learning ability",
-//                 answer: "Explain lesson learned"
-//             },
-//             {
-//                 question: "How do you handle deadlines?",
-//                 intention: "Work ethic",
-//                 answer: "Explain time management"
+//                 question: "Describe a challenge you faced in a project.",
+//                 intention: "To test problem-solving ability.",
+//                 answer: "Explain the problem, your action, and the result clearly."
 //             }
-//         ];
-
-//         // 🔥 SKILL GAPS
-//         const skillGaps = (parsed.weaknesses || parsed.concerns || []).map(skill => ({
-//             skill,
-//             severity: "medium"
-//         }));
-
-//         // 🔥 7 DAY ROADMAP (PROGRESSIVE)
-//         const preparationPlan = [
+//         ],
+//         skillGaps: [
+//             {
+//                 skill: "System design",
+//                 severity: "medium"
+//             },
+//             {
+//                 skill: "Advanced DSA",
+//                 severity: "medium"
+//             }
+//         ],
+//         preparationPlan: [
 //             {
 //                 day: 1,
-//                 focus: "JavaScript Basics",
-//                 tasks: ["Variables", "Closures", "Promises", "Async/Await"]
+//                 focus: "JavaScript and React revision",
+//                 tasks: ["Revise hooks", "Practice components", "Review state management"]
 //             },
 //             {
 //                 day: 2,
-//                 focus: "React Basics",
-//                 tasks: ["Components", "Props", "State", "Hooks"]
+//                 focus: "Node.js and Express",
+//                 tasks: ["Revise middleware", "Practice REST APIs", "Review JWT authentication"]
 //             },
 //             {
 //                 day: 3,
-//                 focus: "Advanced React",
-//                 tasks: ["Context API", "Routing", "Performance optimization"]
+//                 focus: "MongoDB",
+//                 tasks: ["Practice CRUD queries", "Revise schema design", "Understand indexing"]
 //             },
 //             {
 //                 day: 4,
-//                 focus: "Node.js + Express",
-//                 tasks: ["REST APIs", "Middleware", "JWT Authentication"]
+//                 focus: "Project explanation",
+//                 tasks: ["Prepare project architecture", "Explain your role", "Prepare challenges and solutions"]
 //             },
 //             {
 //                 day: 5,
-//                 focus: "Database",
-//                 tasks: ["MongoDB queries", "Schema design", "CRUD"]
-//             },
-//             {
-//                 day: 6,
-//                 focus: "Projects",
-//                 tasks: ["Explain projects", "Fix bugs", "Prepare GitHub"]
-//             },
-//             {
-//                 day: 7,
-//                 focus: "Mock Interview",
-//                 tasks: ["Practice questions", "HR questions", "Confidence"]
+//                 focus: "Mock interview",
+//                 tasks: ["Practice technical questions", "Practice HR questions", "Improve answers"]
 //             }
-//         ];
+//         ]
+//     };
+// }
 
-//         return {
-//             matchScore: Math.round((parsed.overall_rating || 7) * 10),
-//             technicalQuestions: techQuestions,
-//             behavioralQuestions,
-//             skillGaps,
-//             preparationPlan,
-//             title: parsed.applied_role || parsed.position || "Interview Report"
-//         };
+// function normalizeInterviewReport(report, input) {
+//     const fallback = fallbackInterviewReport(input);
 
+//     return {
+//         matchScore:
+//             typeof report?.matchScore === "number"
+//                 ? Math.max(0, Math.min(100, Math.round(report.matchScore)))
+//                 : fallback.matchScore,
+
+//         title:
+//             report?.title ||
+//             input.jobDescription?.slice(0, 50) ||
+//             fallback.title,
+
+//         technicalQuestions:
+//             Array.isArray(report?.technicalQuestions) && report.technicalQuestions.length > 0
+//                 ? report.technicalQuestions
+//                 : fallback.technicalQuestions,
+
+//         behavioralQuestions:
+//             Array.isArray(report?.behavioralQuestions) && report.behavioralQuestions.length > 0
+//                 ? report.behavioralQuestions
+//                 : fallback.behavioralQuestions,
+
+//         skillGaps:
+//             Array.isArray(report?.skillGaps) && report.skillGaps.length > 0
+//                 ? report.skillGaps
+//                 : fallback.skillGaps,
+
+//         preparationPlan:
+//             Array.isArray(report?.preparationPlan) && report.preparationPlan.length > 0
+//                 ? report.preparationPlan
+//                 : fallback.preparationPlan
+//     };
+// }
+
+// async function callGemini(prompt) {
+//     const apiKey = process.env.GOOGLE_GENAI_API_KEY;
+
+//     if (!apiKey) {
+//         throw new Error("GOOGLE_GENAI_API_KEY is missing in .env");
+//     }
+
+//     const response = await fetch(
+//         `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+//         {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/json"
+//             },
+//             body: JSON.stringify({
+//                 contents: [
+//                     {
+//                         parts: [{ text: prompt }]
+//                     }
+//                 ],
+//                 generationConfig: {
+//                     temperature: 0.4,
+//                     responseMimeType: "application/json"
+//                 }
+//             })
+//         }
+//     );
+
+//     const data = await response.json();
+
+//     if (!response.ok) {
+//         throw new Error(data?.error?.message || "Gemini API request failed");
+//     }
+
+//     return data?.candidates?.[0]?.content?.parts?.[0]?.text;
+// }
+
+// async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
+//     const input = { resume, selfDescription, jobDescription };
+
+//     try {
+//         const prompt = `
+// Generate an interview preparation report.
+
+// Return ONLY valid JSON in this exact shape:
+// {
+//   "matchScore": 75,
+//   "title": "Job title",
+//   "technicalQuestions": [
+//     {
+//       "question": "Question text",
+//       "intention": "Why interviewer asks this",
+//       "answer": "How candidate should answer"
+//     }
+//   ],
+//   "behavioralQuestions": [
+//     {
+//       "question": "Question text",
+//       "intention": "Why interviewer asks this",
+//       "answer": "How candidate should answer"
+//     }
+//   ],
+//   "skillGaps": [
+//     {
+//       "skill": "Skill name",
+//       "severity": "low"
+//     }
+//   ],
+//   "preparationPlan": [
+//     {
+//       "day": 1,
+//       "focus": "Focus area",
+//       "tasks": ["Task 1", "Task 2"]
+//     }
+//   ]
+// }
+
+// Rules:
+// - matchScore must be between 0 and 100.
+// - severity must be one of: low, medium, high.
+// - Give at least 5 technical questions.
+// - Give at least 3 behavioral questions.
+// - Give at least 5 preparation days.
+
+// Resume:
+// ${resume || "Not provided"}
+
+// Self Description:
+// ${selfDescription || "Not provided"}
+
+// Job Description:
+// ${jobDescription || "Not provided"}
+// `;
+
+//         const text = await callGemini(prompt);
+//         const parsed = extractJson(text);
+
+//         return normalizeInterviewReport(parsed, input);
 //     } catch (error) {
 //         console.log("AI ERROR:", error.message);
-
-//         return {
-//             matchScore: 65,
-//             technicalQuestions: [
-//                 {
-//                     question: "Explain your main project",
-//                     intention: "Practical knowledge",
-//                     answer: "Explain architecture"
-//                 }
-//             ],
-//             behavioralQuestions: [
-//                 {
-//                     question: "Tell me about yourself",
-//                     intention: "Communication",
-//                     answer: selfDescription || "Explain background"
-//                 }
-//             ],
-//             skillGaps: [{ skill: "DSA", severity: "medium" }],
-//             preparationPlan: [
-//                 {
-//                     day: 1,
-//                     focus: "Basics",
-//                     tasks: ["Revise JS"]
-//                 }
-//             ],
-//             title: "Interview Report"
-//         };
+//         return fallbackInterviewReport(input);
 //     }
 // }
 
 // async function generatePdfFromHtml(htmlContent) {
-//     const browser = await puppeteer.launch();
+//     const browser = await puppeteer.launch({
+//         headless: "new",
+//         args: ["--no-sandbox", "--disable-setuid-sandbox"]
+//     });
+
 //     const page = await browser.newPage();
 
-//     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+//     await page.setContent(htmlContent, {
+//         waitUntil: "networkidle0"
+//     });
 
 //     const pdfBuffer = await page.pdf({
 //         format: "A4",
+//         printBackground: true,
 //         margin: {
 //             top: "20mm",
 //             bottom: "20mm",
@@ -238,162 +278,646 @@
 
 // async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 //     try {
-//         const resumePdfSchema = z.object({
-//             html: z.string()
-//         });
+//         const prompt = `
+// Create a professional ATS-friendly resume as HTML.
 
-//         const prompt = `Generate resume for a candidate with the following details:
-//         Resume: ${resume}
-//         Self Description: ${selfDescription}
-//         Job Description: ${jobDescription}
-//         `;
+// Return ONLY valid JSON:
+// {
+//   "html": "<html>...</html>"
+// }
 
-//         const response = await ai.models.generateContent({
-//             model: "gemini-3-flash-preview",
-//             contents: prompt,
-//             config: {
-//                 responseMimeType: "application/json",
-//                 responseSchema: zodToJsonSchema(resumePdfSchema),
-//             }
-//         });
+// Resume:
+// ${resume || "Not provided"}
 
-//         const jsonContent = JSON.parse(response.text);
+// Self Description:
+// ${selfDescription || "Not provided"}
 
-//         return await generatePdfFromHtml(jsonContent.html);
+// Job Description:
+// ${jobDescription || "Not provided"}
+// `;
 
+//         const text = await callGemini(prompt);
+//         const parsed = extractJson(text);
+
+//         if (!parsed?.html) {
+//             throw new Error("AI did not return resume HTML");
+//         }
+
+//         return await generatePdfFromHtml(parsed.html);
 //     } catch (error) {
 //         console.log("Resume PDF Error:", error.message);
 
 //         const fallbackHtml = `
 //             <html>
-//                 <body>
+//                 <body style="font-family: Arial, sans-serif; padding: 24px;">
 //                     <h1>Resume</h1>
-//                     <p>${selfDescription}</p>
-//                     <p>${jobDescription}</p>
+//                     <h2>Profile</h2>
+//                     <p>${selfDescription || ""}</p>
+//                     <h2>Experience / Skills</h2>
+//                     <p>${resume || ""}</p>
+//                     <h2>Target Role</h2>
+//                     <p>${jobDescription || ""}</p>
 //                 </body>
 //             </html>
 //         `;
 
 //         return await generatePdfFromHtml(fallbackHtml);
-
 //     }
 // }
 
-// module.exports = { generateInterviewReport, generateResumePdf };
-
-const { GoogleGenAI } = require("@google/genai")
-const { z } = require("zod")
-const { zodToJsonSchema } = require("zod-to-json-schema")
-const puppeteer = require("puppeteer")
-
-const ai = new GoogleGenAI({
-    apiKey: process.env.GOOGLE_GENAI_API_KEY
-})
+// module.exports = {
+//     generateInterviewReport,
+//     generateResumePdf
+// };
 
 
-const interviewReportSchema = z.object({
-    matchScore: z.number().describe("A score between 0 and 100 indicating how well the candidate's profile matches the job describe"),
-    technicalQuestions: z.array(z.object({
-        question: z.string().describe("The technical question can be asked in the interview"),
-        intention: z.string().describe("The intention of interviewer behind asking this question"),
-        answer: z.string().describe("How to answer this question, what points to cover, what approach to take etc.")
-    })).describe("Technical questions that can be asked in the interview along with their intention and how to answer them"),
-    behavioralQuestions: z.array(z.object({
-        question: z.string().describe("The technical question can be asked in the interview"),
-        intention: z.string().describe("The intention of interviewer behind asking this question"),
-        answer: z.string().describe("How to answer this question, what points to cover, what approach to take etc.")
-    })).describe("Behavioral questions that can be asked in the interview along with their intention and how to answer them"),
-    skillGaps: z.array(z.object({
-        skill: z.string().describe("The skill which the candidate is lacking"),
-        severity: z.enum([ "low", "medium", "high" ]).describe("The severity of this skill gap, i.e. how important is this skill for the job and how much it can impact the candidate's chances")
-    })).describe("List of skill gaps in the candidate's profile along with their severity"),
-    preparationPlan: z.array(z.object({
-        day: z.number().describe("The day number in the preparation plan, starting from 1"),
-        focus: z.string().describe("The main focus of this day in the preparation plan, e.g. data structures, system design, mock interviews etc."),
-        tasks: z.array(z.string()).describe("List of tasks to be done on this day to follow the preparation plan, e.g. read a specific book or article, solve a set of problems, watch a video etc.")
-    })).describe("A day-wise preparation plan for the candidate to follow in order to prepare for the interview effectively"),
-    title: z.string().describe("The title of the job for which the interview report is generated"),
-})
-
-async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
 
 
-    const prompt = `Generate an interview report for a candidate with the following details:
-                        Resume: ${resume}
-                        Self Description: ${selfDescription}
-                        Job Description: ${jobDescription}
-`
 
-    const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(interviewReportSchema),
+
+
+
+const puppeteer = require("puppeteer");
+
+const MODEL_CANDIDATES = [
+    process.env.GEMINI_MODEL,
+    "gemini-2.0-flash",
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite"
+].filter(Boolean);
+
+function extractJson(text) {
+    if (!text) return null;
+
+    try {
+        return JSON.parse(text);
+    } catch (_) {
+        const match = text.match(/\{[\s\S]*\}/);
+        if (!match) return null;
+
+        try {
+            return JSON.parse(match[0]);
+        } catch (_) {
+            return null;
         }
-    })
-
-    return JSON.parse(response.text)
-
-
+    }
 }
 
+function escapeHtml(value = "") {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
+async function callGemini(prompt) {
+    const apiKey = process.env.GOOGLE_GENAI_API_KEY;
+
+    if (!apiKey) {
+        throw new Error("GOOGLE_GENAI_API_KEY is missing in .env");
+    }
+
+    let lastError = null;
+
+    for (const model of MODEL_CANDIDATES) {
+        try {
+            const response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        contents: [
+                            {
+                                parts: [{ text: prompt }]
+                            }
+                        ],
+                        generationConfig: {
+                            temperature: 0.35,
+                            maxOutputTokens: 2500,
+                            responseMimeType: "application/json"
+                        }
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                lastError = data?.error?.message || `Gemini request failed for ${model}`;
+                continue;
+            }
+
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+            if (text) return text;
+
+            lastError = `Empty Gemini response for ${model}`;
+        } catch (error) {
+            lastError = error.message;
+        }
+    }
+
+    throw new Error(lastError || "All Gemini models failed");
+}
+
+function fallbackInterviewReport({ selfDescription, jobDescription }) {
+    return {
+        matchScore: 65,
+        title: jobDescription?.slice(0, 50) || "Interview Report",
+        technicalQuestions: [
+            {
+                question: "Explain your main project architecture.",
+                intention: "To check practical project understanding.",
+                answer: "Explain frontend, backend, database, authentication, APIs, and your contribution."
+            },
+            {
+                question: "What is middleware in Express.js?",
+                intention: "To test backend fundamentals.",
+                answer: "Middleware functions run between request and response and are used for auth, validation, logging, and error handling."
+            },
+            {
+                question: "How does JWT authentication work?",
+                intention: "To check authentication understanding.",
+                answer: "After login, the server signs a token. The client sends it with requests, and the server verifies it."
+            },
+            {
+                question: "What are React hooks?",
+                intention: "To check React knowledge.",
+                answer: "Hooks like useState and useEffect allow functional components to manage state and side effects."
+            },
+            {
+                question: "What is the difference between SQL and NoSQL?",
+                intention: "To test database knowledge.",
+                answer: "SQL uses structured tables. NoSQL databases like MongoDB use flexible documents."
+            }
+        ],
+        behavioralQuestions: [
+            {
+                question: "Tell me about yourself.",
+                intention: "To evaluate communication and confidence.",
+                answer: selfDescription || "Briefly explain your education, skills, projects, and career goal."
+            },
+            {
+                question: "Why should we hire you?",
+                intention: "To understand your fit for the role.",
+                answer: "Connect your skills, projects, learning ability, and interest in the company role."
+            },
+            {
+                question: "Describe a challenge you faced in a project.",
+                intention: "To test problem-solving ability.",
+                answer: "Explain the problem, your action, and the result clearly."
+            }
+        ],
+        skillGaps: [
+            { skill: "System design", severity: "medium" },
+            { skill: "Advanced DSA", severity: "medium" }
+        ],
+        preparationPlan: [
+            {
+                day: 1,
+                focus: "JavaScript and React revision",
+                tasks: ["Revise hooks", "Practice components", "Review state management"]
+            },
+            {
+                day: 2,
+                focus: "Node.js and Express",
+                tasks: ["Revise middleware", "Practice REST APIs", "Review JWT authentication"]
+            },
+            {
+                day: 3,
+                focus: "MongoDB",
+                tasks: ["Practice CRUD queries", "Revise schema design", "Understand indexing"]
+            },
+            {
+                day: 4,
+                focus: "Project explanation",
+                tasks: ["Prepare project architecture", "Explain your role", "Prepare challenges and solutions"]
+            },
+            {
+                day: 5,
+                focus: "Mock interview",
+                tasks: ["Practice technical questions", "Practice HR questions", "Improve answers"]
+            }
+        ]
+    };
+}
+
+function normalizeInterviewReport(report, input) {
+    const fallback = fallbackInterviewReport(input);
+
+    return {
+        matchScore:
+            typeof report?.matchScore === "number"
+                ? Math.max(0, Math.min(100, Math.round(report.matchScore)))
+                : fallback.matchScore,
+        title: report?.title || input.jobDescription?.slice(0, 50) || fallback.title,
+        technicalQuestions:
+            Array.isArray(report?.technicalQuestions) && report.technicalQuestions.length > 0
+                ? report.technicalQuestions
+                : fallback.technicalQuestions,
+        behavioralQuestions:
+            Array.isArray(report?.behavioralQuestions) && report.behavioralQuestions.length > 0
+                ? report.behavioralQuestions
+                : fallback.behavioralQuestions,
+        skillGaps:
+            Array.isArray(report?.skillGaps) && report.skillGaps.length > 0
+                ? report.skillGaps
+                : fallback.skillGaps,
+        preparationPlan:
+            Array.isArray(report?.preparationPlan) && report.preparationPlan.length > 0
+                ? report.preparationPlan
+                : fallback.preparationPlan
+    };
+}
+
+async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
+    const input = { resume, selfDescription, jobDescription };
+
+    try {
+        const prompt = `
+Generate an interview preparation report.
+
+Return ONLY valid JSON:
+{
+  "matchScore": 75,
+  "title": "Job title",
+  "technicalQuestions": [
+    {
+      "question": "Question text",
+      "intention": "Why interviewer asks this",
+      "answer": "How candidate should answer"
+    }
+  ],
+  "behavioralQuestions": [
+    {
+      "question": "Question text",
+      "intention": "Why interviewer asks this",
+      "answer": "How candidate should answer"
+    }
+  ],
+  "skillGaps": [
+    {
+      "skill": "Skill name",
+      "severity": "low"
+    }
+  ],
+  "preparationPlan": [
+    {
+      "day": 1,
+      "focus": "Focus area",
+      "tasks": ["Task 1", "Task 2"]
+    }
+  ]
+}
+
+Rules:
+- matchScore must be between 0 and 100.
+- severity must be one of: low, medium, high.
+- Give at least 5 technical questions.
+- Give at least 3 behavioral questions.
+- Give at least 5 preparation days.
+
+Resume:
+${resume || "Not provided"}
+
+Self Description:
+${selfDescription || "Not provided"}
+
+Job Description:
+${jobDescription || "Not provided"}
+`;
+
+        const text = await callGemini(prompt);
+        const parsed = extractJson(text);
+
+        return normalizeInterviewReport(parsed, input);
+    } catch (error) {
+        console.log("AI ERROR:", error.message);
+        return fallbackInterviewReport(input);
+    }
+}
+
+function createAtsResumeHtml(data) {
+    const skills = Array.isArray(data.skills) ? data.skills : [];
+    const projects = Array.isArray(data.projects) ? data.projects : [];
+    const experience = Array.isArray(data.experience) ? data.experience : [];
+    const education = Array.isArray(data.education) ? data.education : [];
+
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #000;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+            font-size: 10.5pt;
+            line-height: 1.35;
+        }
+
+        .resume {
+            width: 100%;
+            padding: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .name {
+            font-size: 22pt;
+            font-weight: 700;
+            letter-spacing: 0;
+            margin: 0 0 4px;
+            text-transform: uppercase;
+        }
+
+        .contact {
+            font-size: 9.5pt;
+            margin: 0;
+        }
+
+        .section {
+            margin-top: 11px;
+        }
+
+        .section-title {
+            font-size: 11.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-bottom: 1px solid #000;
+            padding-bottom: 2px;
+            margin-bottom: 6px;
+        }
+
+        p {
+            margin: 0 0 5px;
+        }
+
+        .item {
+            margin-bottom: 8px;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        .item-sub {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-style: italic;
+            margin-top: 1px;
+        }
+
+        ul {
+            margin: 4px 0 0 16px;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 3px;
+        }
+
+        .skills {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="resume">
+        <div class="header">
+            <h1 class="name">${escapeHtml(data.name || "Ishika Savita")}</h1>
+            <p class="contact">${escapeHtml(data.contact || "")}</p>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Professional Summary</div>
+            <p>${escapeHtml(data.summary || "")}</p>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Technical Skills</div>
+            <p class="skills">${escapeHtml(skills.join(" | "))}</p>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Experience</div>
+            ${experience.map(item => `
+                <div class="item">
+                    <div class="item-header">
+                        <span>${escapeHtml(item.role || "")}</span>
+                        <span>${escapeHtml(item.duration || "")}</span>
+                    </div>
+                    <div class="item-sub">
+                        <span>${escapeHtml(item.company || "")}</span>
+                        <span>${escapeHtml(item.location || "")}</span>
+                    </div>
+                    <ul>
+                        ${(item.points || []).map(point => `<li>${escapeHtml(point)}</li>`).join("")}
+                    </ul>
+                </div>
+            `).join("")}
+        </div>
+
+        <div class="section">
+            <div class="section-title">Projects</div>
+            ${projects.map(item => `
+                <div class="item">
+                    <div class="item-header">
+                        <span>${escapeHtml(item.name || "")}</span>
+                        <span>${escapeHtml(item.tech || "")}</span>
+                    </div>
+                    <ul>
+                        ${(item.points || []).map(point => `<li>${escapeHtml(point)}</li>`).join("")}
+                    </ul>
+                </div>
+            `).join("")}
+        </div>
+
+        <div class="section">
+            <div class="section-title">Education</div>
+            ${education.map(item => `
+                <div class="item">
+                    <div class="item-header">
+                        <span>${escapeHtml(item.degree || "")}</span>
+                        <span>${escapeHtml(item.duration || "")}</span>
+                    </div>
+                    <div>${escapeHtml(item.institute || "")}</div>
+                    <div>${escapeHtml(item.location || "")}</div>
+                </div>
+            `).join("")}
+        </div>
+    </div>
+</body>
+</html>
+`;
+}
 
 async function generatePdfFromHtml(htmlContent) {
-    const browser = await puppeteer.launch()
+    const browser = await puppeteer.launch({
+        headless: "new",
+        args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    });
+
     const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" })
+
+    await page.setContent(htmlContent, {
+        waitUntil: "networkidle0"
+    });
 
     const pdfBuffer = await page.pdf({
-        format: "A4", margin: {
-            top: "20mm",
-            bottom: "20mm",
-            left: "15mm",
-            right: "15mm"
+        format: "A4",
+        printBackground: true,
+        margin: {
+            top: "14mm",
+            bottom: "14mm",
+            left: "16mm",
+            right: "16mm"
         }
-    })
+    });
 
-    await browser.close()
+    await browser.close();
 
-    return pdfBuffer
+    return pdfBuffer;
 }
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
+    try {
+        const prompt = `
+You are an expert ATS resume writer.
 
-    const resumePdfSchema = z.object({
-        html: z.string().describe("The HTML content of the resume which can be converted to PDF using any library like puppeteer")
-    })
+Create a clean ATS-friendly resume from the candidate details and target job.
 
-    const prompt = `Generate resume for a candidate with the following details:
-                        Resume: ${resume}
-                        Self Description: ${selfDescription}
-                        Job Description: ${jobDescription}
-
-                        the response should be a JSON object with a single field "html" which contains the HTML content of the resume which can be converted to PDF using any library like puppeteer.
-                        The resume should be tailored for the given job description and should highlight the candidate's strengths and relevant experience. The HTML content should be well-formatted and structured, making it easy to read and visually appealing.
-                        The content of resume should be not sound like it's generated by AI and should be as close as possible to a real human-written resume.
-                        you can highlight the content using some colors or different font styles but the overall design should be simple and professional.
-                        The content should be ATS friendly, i.e. it should be easily parsable by ATS systems without losing important information.
-                        The resume should not be so lengthy, it should ideally be 1-2 pages long when converted to PDF. Focus on quality rather than quantity and make sure to include all the relevant information that can increase the candidate's chances of getting an interview call for the given job description.
-                    `
-
-    const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(resumePdfSchema),
-        }
-    })
-
-
-    const jsonContent = JSON.parse(response.text)
-
-    const pdfBuffer = await generatePdfFromHtml(jsonContent.html)
-
-    return pdfBuffer
-
+Return ONLY valid JSON in this shape:
+{
+  "name": "Candidate Name",
+  "contact": "Phone | Email | LinkedIn | GitHub | Portfolio",
+  "summary": "3-4 line professional summary tailored to the job",
+  "skills": ["React.js", "Node.js", "MongoDB"],
+  "experience": [
+    {
+      "role": "Job title",
+      "company": "Company name",
+      "location": "Location or Remote",
+      "duration": "Month Year - Month Year",
+      "points": [
+        "Achievement-oriented bullet point",
+        "Achievement-oriented bullet point"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Project name",
+      "tech": "React.js, Node.js, MongoDB",
+      "points": [
+        "Project bullet point",
+        "Project bullet point"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "Degree name",
+      "institute": "Institute name",
+      "location": "Location",
+      "duration": "Year - Year"
+    }
+  ]
 }
 
-module.exports = { generateInterviewReport, generateResumePdf }
+Rules:
+- Do not invent fake companies.
+- Use only information from resume/profile where possible.
+- Improve wording to be professional and ATS-friendly.
+- Keep it one-column, simple, black text resume content.
+- Make bullets concise and impact-focused.
+- Tailor keywords to the job description.
+
+Candidate Resume Text:
+${resume || "Not provided"}
+
+Candidate Self Description:
+${selfDescription || "Not provided"}
+
+Target Job Description:
+${jobDescription || "Not provided"}
+`;
+
+        const text = await callGemini(prompt);
+        const parsed = extractJson(text);
+
+        if (!parsed) {
+            throw new Error("AI did not return valid resume JSON");
+        }
+
+        const html = createAtsResumeHtml(parsed);
+        return await generatePdfFromHtml(html);
+    } catch (error) {
+        console.log("Resume PDF Error:", error.message);
+
+        const html = createAtsResumeHtml({
+            name: "Ishika Savita",
+            contact: "+91 9131314683 | ishikasavita946@gmail.com | LinkedIn | GitHub | Portfolio",
+            summary: selfDescription || "Full-stack developer with experience in React.js, Node.js, MongoDB, REST APIs, authentication, and responsive web application development.",
+            skills: ["React.js", "Node.js", "Express.js", "MongoDB", "JavaScript", "HTML", "CSS", "REST APIs", "Git", "GitHub"],
+            experience: [
+                {
+                    role: "Full Stack Developer Intern",
+                    company: "iNeuron Intelligence Pvt. Ltd.",
+                    location: "Remote",
+                    duration: "May 2025 - July 2025",
+                    points: [
+                        "Developed full-stack web application features using React.js, Node.js, Express.js, and MongoDB.",
+                        "Implemented REST APIs for authentication, data management, and backend business logic.",
+                        "Built responsive user interfaces and improved frontend-backend communication."
+                    ]
+                }
+            ],
+            projects: [
+                {
+                    name: "AI Interview Preparation Platform",
+                    tech: "React.js, Node.js, MongoDB, Gemini API",
+                    points: [
+                        "Built an AI-powered platform that generates interview questions, skill gaps, and preparation plans.",
+                        "Integrated resume parsing, authentication, report generation, and mock interview functionality."
+                    ]
+                }
+            ],
+            education: [
+                {
+                    degree: "B.Tech in Electrical Engineering",
+                    institute: "Madhav Institute of Technology and Science",
+                    location: "Gwalior, India",
+                    duration: "2022 - Present"
+                }
+            ]
+        });
+
+        return await generatePdfFromHtml(html);
+    }
+}
+
+module.exports = {
+    generateInterviewReport,
+    generateResumePdf
+};
+

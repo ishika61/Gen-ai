@@ -1,0 +1,1976 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// // ─────────────────────────────────────────────────────────────────────────────
+// // voice-interview.scss  ·  AI No-Code dark purple platform aesthetic
+// // ─────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+// // ─────────────────────────────────────────────────────────────────────────────
+// // voice-interview.scss
+// // AI No-Code Platform aesthetic — deep near-black, vivid purple-magenta mesh,
+// // dot grid, frosted-glass panels, luminous glow borders, neon pill badges
+// // ─────────────────────────────────────────────────────────────────────────────
+
+// @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+// // ── Design tokens ──────────────────────────────────────────────────────────────
+// .vi-page {
+//   // backgrounds
+//   --v-void:       #06060e;
+//   --v-base:       #09081a;
+//   --v-surface:    #0e0c20;
+//   --v-card:       #12102a;
+//   --v-elevated:   #181530;
+//   --v-hover:      #1f1b38;
+
+//   // borders / glows  (purple-spectrum)
+//   --v-b0:         rgba(139,92,246,.06);
+//   --v-b1:         rgba(139,92,246,.13);
+//   --v-b2:         rgba(139,92,246,.24);
+//   --v-b3:         rgba(168,85,247,.50);
+//   --v-glow-v:     0 0 32px rgba(139,92,246,.32);
+//   --v-glow-m:     0 0 32px rgba(217,70,239,.26);
+//   --v-glow-a:     0 0 24px rgba(245,158,11,.28);
+
+//   // text
+//   --v-t1:         #f0ecff;
+//   --v-t2:         #9b91c2;
+//   --v-t3:         #4c4670;
+
+//   // accent spectrum
+//   --v-violet:     #8b5cf6;
+//   --v-purple:     #a855f7;
+//   --v-magenta:    #40b6d7;
+//   --v-indigo:     #6366f1;
+//   --v-cyan:       #22d3ee;
+//   --v-green:      #10b981;
+//   --v-amber:      #f59e0b;
+//   --v-red:        hsl(235, 89%, 60%);
+
+//   // gradient shortcuts
+//   --v-grad:       linear-gradient(135deg,#8b5cf6 0%,#a855f7 45%,#d946ef 100%);
+//   --v-grad-user:  linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%);
+//   --v-grad-amber: linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
+
+//   --v-ease:       cubic-bezier(.4,0,.2,1);
+//   --v-font-d:     'Syne','Segoe UI',sans-serif;
+//   --v-font-b:     'DM Sans',system-ui,sans-serif;
+// }
+
+// // ── Keyframes ──────────────────────────────────────────────────────────────────
+// @keyframes vi-spin {
+//   to { transform: rotate(360deg); }
+// }
+// @keyframes vi-fadeUp {
+//   from { opacity: 0; transform: translateY(14px); }
+//   to   { opacity: 1; transform: translateY(0);    }
+// }
+// @keyframes vi-pulse {
+//   0%,100% { opacity: .5; }
+//   50%     { opacity: 1;  }
+// }
+// @keyframes vi-pulse-scale {
+//   0%,100% { transform: scale(1);    opacity: .55; }
+//   50%     { transform: scale(1.06); opacity: 1;   }
+// }
+// @keyframes vi-ripple {
+//   0%   { transform: scale(1);   opacity: .65; }
+//   100% { transform: scale(2.5); opacity: 0;   }
+// }
+// @keyframes vi-ripple2 {
+//   0%   { transform: scale(1);   opacity: .40; }
+//   100% { transform: scale(3.1); opacity: 0;   }
+// }
+// @keyframes vi-wave {
+//   0%,100% { height: 4px;  }
+//   50%     { height: 24px; }
+// }
+// @keyframes vi-dot {
+//   0%,80%,100% { transform: scale(.55); opacity: .35; }
+//   40%         { transform: scale(1);   opacity: 1;   }
+// }
+// @keyframes vi-orb {
+//   0%,100% { transform: translate(0,0) scale(1); }
+//   35%     { transform: translate(45px,-35px) scale(1.07); }
+//   70%     { transform: translate(-30px,22px) scale(.94); }
+// }
+// @keyframes vi-shimmer {
+//   from { background-position: -200% center; }
+//   to   { background-position:  200% center; }
+// }
+// @keyframes vi-grid-pan {
+//   from { background-position: 0 0; }
+//   to   { background-position: 28px 28px; }
+// }
+
+// // ── Page shell ─────────────────────────────────────────────────────────────────
+// .vi-page {
+//   min-height: 100vh;
+//   width: 100%;
+//   background: var(--v-void);
+//   color: var(--v-t1);
+//   font-family: var(--v-font-b);
+//   font-size: 15px;
+//   -webkit-font-smoothing: antialiased;
+//   display: flex;
+//   flex-direction: column;
+//   position: relative;
+//   overflow: hidden;
+
+//   // ── layered mesh gradient (matches reference: top-right violet bloom,
+//   //    left-mid indigo, bottom-center magenta fade) ──────────────────────
+//   &::before {
+//     content: '';
+//     position: fixed; inset: 0;
+//     background:
+//       radial-gradient(ellipse 72% 58% at 72% -8%,  rgba(139,92,246,.24) 0%, transparent 62%),
+//       radial-gradient(ellipse 55% 42% at 100% 35%, rgba(217,70,239,.16) 0%, transparent 58%),
+//       radial-gradient(ellipse 48% 42% at 0%   72%, rgba(99,102,241,.13) 0%, transparent 58%),
+//       radial-gradient(ellipse 60% 50% at 45% 105%, rgba(139,92,246,.11) 0%, transparent 60%);
+//     pointer-events: none;
+//     z-index: 0;
+//     animation: vi-pulse 10s ease-in-out infinite;
+//   }
+
+//   // ── animated fine dot-grid (signature No-Code platform texture) ────────
+//   &::after {
+//     content: '';
+//     position: fixed; inset: 0;
+//     background-image: radial-gradient(rgba(139,92,246,.20) 1px, transparent 1px);
+//     background-size: 28px 28px;
+//     animation: vi-grid-pan 6s linear infinite;
+//     pointer-events: none;
+//     z-index: 0;
+//     mask-image:
+//       radial-gradient(ellipse 85% 65% at 50% 15%, black 5%, transparent 80%),
+//       radial-gradient(ellipse 60% 40% at 50% 90%, black 5%, transparent 70%);
+//     mask-composite: add;
+//     -webkit-mask-composite: destination-over;
+//   }
+
+//   > * { position: relative; z-index: 1; }
+// }
+
+// // ── Floating ambient orbs ──────────────────────────────────────────────────────
+// .vi-orb {
+//   position: fixed;
+//   border-radius: 50%;
+//   pointer-events: none;
+//   z-index: 0;
+//   filter: blur(1px);
+
+//   &--a {
+//     width: 560px; height: 560px;
+//     top: -180px; left: -120px;
+//     background: radial-gradient(circle at 38% 38%,
+//       rgba(139,92,246,.18) 0%,
+//       rgba(99,102,241,.06) 45%,
+//       transparent 68%);
+//     animation: vi-orb 18s ease-in-out infinite;
+//   }
+
+//   &--b {
+//     width: 380px; height: 380px;
+//     bottom: -80px; right: -60px;
+//     background: radial-gradient(circle at 62% 62%,
+//       rgba(217,70,239,.15) 0%,
+//       rgba(139,92,246,.05) 50%,
+//       transparent 70%);
+//     animation: vi-orb 24s ease-in-out infinite reverse;
+//   }
+// }
+
+// // ── Top header bar ─────────────────────────────────────────────────────────────
+// .vi-header {
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   padding: 1rem 1.75rem;
+//   background: rgba(9,8,26,.78);
+//   backdrop-filter: blur(18px);
+//   -webkit-backdrop-filter: blur(18px);
+//   border-bottom: 1px solid var(--v-b0);
+//   flex-shrink: 0;
+//   position: relative;
+
+//   // luminous top-edge gradient line (matches reference card borders)
+//   &::before {
+//     content: '';
+//     position: absolute;
+//     top: 0; left: 6%; right: 6%; height: 1px;
+//     background: linear-gradient(
+//       90deg,
+//       transparent 0%,
+//       rgba(139,92,246,.80) 30%,
+//       rgba(168,85,247,.70) 50%,
+//       rgba(217,70,239,.65) 70%,
+//       transparent 100%
+//     );
+//     pointer-events: none;
+//   }
+
+//   &__left {
+//     display: flex;
+//     align-items: center;
+//     gap: .9rem;
+//   }
+
+//   // ── back button ─────────────────────────────────────────────────────────
+//   &__back {
+//     display: flex; align-items: center; justify-content: center;
+//     width: 34px; height: 34px;
+//     background: rgba(255,255,255,.04);
+//     border: 1px solid var(--v-b1);
+//     border-radius: 8px;
+//     color: var(--v-t2);
+//     cursor: pointer;
+//     transition: all .2s var(--v-ease);
+//     flex-shrink: 0;
+
+//     &:hover {
+//       background: rgba(139,92,246,.12);
+//       border-color: var(--v-b2);
+//       color: var(--v-t1);
+//       box-shadow: var(--v-glow-v);
+//     }
+//     &:active { transform: scale(.95); }
+//   }
+
+//   // ── title + role ────────────────────────────────────────────────────────
+//   &__meta { display: flex; flex-direction: column; gap: .18rem; }
+
+//   &__title {
+//     font-family: var(--v-font-d);
+//     font-size: .95rem; font-weight: 700;
+//     color: var(--v-t1);
+//     letter-spacing: -.025em;
+//     line-height: 1;
+//   }
+
+//   &__role {
+//     font-size: .72rem;
+//     color: var(--v-t3);
+//     line-height: 1;
+//     letter-spacing: .01em;
+//   }
+
+//   &__right {
+//     display: flex; align-items: center; gap: .65rem;
+//   }
+
+//   // ── "Live Session" pill ─────────────────────────────────────────────────
+//   &__status {
+//     display: inline-flex; align-items: center; gap: .42rem;
+//     font-size: .68rem; font-weight: 700;
+//     letter-spacing: .09em; text-transform: uppercase;
+//     color: var(--v-violet);
+//     background: rgba(139,92,246,.10);
+//     border: 1px solid rgba(139,92,246,.22);
+//     padding: .3rem .9rem;
+//     border-radius: 999px;
+//     box-shadow: 0 0 14px rgba(139,92,246,.12);
+
+//     &__dot {
+//       width: 5px; height: 5px;
+//       border-radius: 50%;
+//       background: var(--v-green);
+//       box-shadow: 0 0 7px var(--v-green);
+//       animation: vi-pulse 2s ease-in-out infinite;
+//     }
+//   }
+
+//   // ── restart button ──────────────────────────────────────────────────────
+//   &__restart {
+//     display: inline-flex; align-items: center; gap: .42rem;
+//     padding: .52rem 1rem;
+//     background: rgba(255,255,255,.04);
+//     border: 1px solid var(--v-b1);
+//     border-radius: 8px;
+//     color: var(--v-t2);
+//     font-family: var(--v-font-b);
+//     font-size: .78rem; font-weight: 500;
+//     cursor: pointer;
+//     transition: all .2s var(--v-ease);
+
+//     svg { flex-shrink: 0; }
+
+//     &:hover:not(:disabled) {
+//       background: rgba(139,92,246,.10);
+//       border-color: var(--v-b2);
+//       color: var(--v-t1);
+//     }
+//     &:disabled { opacity: .4; cursor: not-allowed; }
+//     &:active:not(:disabled) { transform: scale(.97); }
+//   }
+// }
+
+// // ── Message feed ───────────────────────────────────────────────────────────────
+// .vi-feed {
+//   flex: 1;
+//   overflow-y: auto;
+//   padding: 2rem 1.5rem 1rem;
+//   display: flex;
+//   flex-direction: column;
+//   gap: 1.5rem;
+//   max-width: 840px;
+//   width: 100%;
+//   margin: 0 auto;
+//   box-sizing: border-box;
+
+//   &::-webkit-scrollbar       { width: 3px; }
+//   &::-webkit-scrollbar-track { background: transparent; }
+//   &::-webkit-scrollbar-thumb { background: var(--v-b1); border-radius: 2px; }
+// }
+
+// // ── Empty / init state ─────────────────────────────────────────────────────────
+// .vi-empty {
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   justify-content: center;
+//   gap: 1.1rem;
+//   padding: 5rem 2rem;
+//   text-align: center;
+//   animation: vi-fadeUp .5s var(--v-ease) both;
+
+//   &__icon {
+//     width: 60px; height: 60px;
+//     background: rgba(139,92,246,.10);
+//     border: 1px solid rgba(139,92,246,.22);
+//     border-radius: 50%;
+//     display: flex; align-items: center; justify-content: center;
+//     color: var(--v-violet);
+//     box-shadow: var(--v-glow-v);
+//     animation: vi-pulse-scale 2.8s ease-in-out infinite;
+//   }
+
+//   p {
+//     font-size: .88rem;
+//     color: var(--v-t3);
+//     margin: 0;
+//     letter-spacing: .01em;
+//   }
+// }
+
+// // ── Message bubble row ─────────────────────────────────────────────────────────
+// .vi-msg {
+//   display: flex;
+//   flex-direction: column;
+//   animation: vi-fadeUp .28s var(--v-ease) both;
+
+//   &--ai   { align-items: flex-start; }
+//   &--user { align-items: flex-end;   }
+
+//   // sender label
+//   &__sender {
+//     font-size: .63rem;
+//     font-weight: 700;
+//     text-transform: uppercase;
+//     letter-spacing: .10em;
+//     margin-bottom: .38rem;
+
+//     &--ai   { color: var(--v-violet); padding-left: .25rem; }
+//     &--user { color: var(--v-t3);     padding-right: .25rem; }
+//   }
+
+//   // bubble shell
+//   &__bubble {
+//     max-width: 74%;
+//     padding: 1rem 1.3rem;
+//     font-size: .9rem;
+//     line-height: 1.72;
+//     color: var(--v-t1);
+
+//     // ── AI bubble: dark frosted glass with luminous top-left corner ────────
+//     &--ai {
+//       background: rgba(14,12,32,.88);
+//       border: 1px solid var(--v-b1);
+//       border-radius: 4px 20px 20px 20px;
+//       backdrop-filter: blur(14px);
+//       -webkit-backdrop-filter: blur(14px);
+//       box-shadow:
+//         0 0 0 1px rgba(255,255,255,.025) inset,
+//         0 6px 28px rgba(0,0,0,.38);
+//       position: relative;
+
+//       // micro luminous corner line
+//       &::before {
+//         content: '';
+//         position: absolute;
+//         top: 0; left: 4px; right: 40%; height: 1px;
+//         background: linear-gradient(
+//           90deg,
+//           rgba(139,92,246,.70),
+//           transparent
+//         );
+//         border-radius: 1px;
+//         pointer-events: none;
+//       }
+//     }
+
+//     // ── User bubble: vivid gradient matching CTA button style ──────────────
+//     &--user {
+//       background: var(--v-grad-user);
+//       border-radius: 20px 4px 20px 20px;
+//       box-shadow:
+//         0 0 0 1px rgba(99,102,241,.35),
+//         0 6px 24px rgba(99,102,241,.30);
+//     }
+//   }
+// }
+
+// // ── Typing indicator ───────────────────────────────────────────────────────────
+// .vi-typing {
+//   display: flex;
+//   flex-direction: column;
+//   align-items: flex-start;
+//   animation: vi-fadeUp .28s var(--v-ease) both;
+
+//   &__label {
+//     font-size: .63rem;
+//     font-weight: 700;
+//     text-transform: uppercase;
+//     letter-spacing: .10em;
+//     color: var(--v-violet);
+//     padding-left: .25rem;
+//     margin-bottom: .38rem;
+//   }
+
+//   &__bubble {
+//     padding: .9rem 1.15rem;
+//     border-radius: 4px 20px 20px 20px;
+//     background: rgba(14,12,32,.88);
+//     border: 1px solid var(--v-b1);
+//     backdrop-filter: blur(14px);
+//     -webkit-backdrop-filter: blur(14px);
+//     display: flex; align-items: center; gap: .38rem;
+//     box-shadow: 0 6px 28px rgba(0,0,0,.35);
+//   }
+
+//   &__dot {
+//     width: 7px; height: 7px;
+//     border-radius: 50%;
+//     background: var(--v-violet);
+//     opacity: .5;
+
+//     &:nth-child(1) { animation: vi-dot 1.2s .00s ease-in-out infinite; }
+//     &:nth-child(2) { animation: vi-dot 1.2s .18s ease-in-out infinite; }
+//     &:nth-child(3) { animation: vi-dot 1.2s .36s ease-in-out infinite; }
+//   }
+// }
+
+// // ── Audio wave visualiser (shown inside mic when listening) ────────────────────
+// .vi-wave {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   gap: 3px;
+//   height: 32px;
+
+//   &__bar {
+//     width: 3px;
+//     min-height: 4px;
+//     border-radius: 2px;
+//     background: #fff;
+
+//     &:nth-child(1) { animation: vi-wave .85s .00s ease-in-out infinite; }
+//     &:nth-child(2) { animation: vi-wave .85s .10s ease-in-out infinite; }
+//     &:nth-child(3) { animation: vi-wave .85s .18s ease-in-out infinite; }
+//     &:nth-child(4) { animation: vi-wave .85s .05s ease-in-out infinite; }
+//     &:nth-child(5) { animation: vi-wave .85s .22s ease-in-out infinite; }
+//     &:nth-child(6) { animation: vi-wave .85s .12s ease-in-out infinite; }
+//     &:nth-child(7) { animation: vi-wave .85s .08s ease-in-out infinite; }
+//   }
+// }
+
+// // ── Bottom dock ────────────────────────────────────────────────────────────────
+// .vi-dock {
+//   flex-shrink: 0;
+//   background: rgba(9,8,26,.82);
+//   backdrop-filter: blur(22px);
+//   -webkit-backdrop-filter: blur(22px);
+//   border-top: 1px solid var(--v-b0);
+//   padding: 1.6rem 2rem 2.2rem;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   gap: 1.1rem;
+//   position: relative;
+
+//   // subtle inner top-glow matching header
+//   &::before {
+//     content: '';
+//     position: absolute;
+//     top: 0; left: 20%; right: 20%; height: 1px;
+//     background: linear-gradient(
+//       90deg,
+//       transparent,
+//       rgba(139,92,246,.40) 40%,
+//       #46bcef4d 60%,
+//       transparent
+//     );
+//     pointer-events: none;
+//   }
+
+//   // ── error banner ────────────────────────────────────────────────────────
+//   &__error {
+//     display: flex; align-items: center; gap: .5rem;
+//     padding: .65rem 1.1rem;
+//     background: rgba(244,63,94,.08);
+//     border: 1px solid rgba(244,63,94,.22);
+//     border-radius: 10px;
+//     color: #fb7185;
+//     font-size: .8rem;
+//     width: 100%; max-width: 520px;
+//     justify-content: center;
+//     box-shadow: 0 0 16px rgba(244,63,94,.08);
+//   }
+
+//   // ── hint text ───────────────────────────────────────────────────────────
+//   &__hint {
+//     font-size: .78rem;
+//     color: var(--v-t3);
+//     text-align: center;
+//     margin: 0;
+//     letter-spacing: .02em;
+//   }
+// }
+
+// // ── Mic button wrapper + ripple rings ──────────────────────────────────────────
+// .vi-mic-wrap {
+//   position: relative;
+//   display: flex; align-items: center; justify-content: center;
+// }
+
+// .vi-ring {
+//   position: absolute;
+//   border-radius: 50%;
+//   pointer-events: none;
+
+//   &--1 {
+//     width: 88px; height: 88px;
+//     border: 2px solid #46d0ef80;
+//     animation: vi-ripple 1.5s ease-out infinite;
+//   }
+//   &--2 {
+//     width: 88px; height: 88px;
+//     border: 2px solid rgba(139,92,246,.32);
+//     animation: vi-ripple2 1.5s .32s ease-out infinite;
+//   }
+// }
+
+// // ── The mic button ─────────────────────────────────────────────────────────────
+// .vi-mic-btn {
+//   position: relative; z-index: 1;
+//   width: 72px; height: 72px;
+//   border-radius: 50%;
+//   border: none;
+//   cursor: pointer;
+//   display: flex; align-items: center; justify-content: center;
+//   color: #fff;
+//   flex-shrink: 0;
+//   transition: all .22s var(--v-ease);
+//   outline: none;
+
+//   // idle: brand gradient + outer glow ring
+//   &--idle {
+//     background: var(--v-grad);
+//     box-shadow:
+//       0 0 0 1px rgba(139,92,246,.45),
+//       var(--v-glow-v),
+//       0 12px 32px rgba(0,0,0,.38);
+
+//     // shimmer sweep on hover
+//     &::after {
+//       content: '';
+//       position: absolute; inset: 0;
+//       border-radius: 50%;
+//       background: linear-gradient(
+//         105deg,
+//         transparent 30%,
+//         rgba(255,255,255,.18) 50%,
+//         transparent 70%
+//       );
+//       background-size: 200% auto;
+//       opacity: 0; transition: opacity .2s;
+//     }
+
+//     &:hover {
+//       transform: scale(1.07);
+//       box-shadow:
+//         0 0 0 1px rgba(217,70,239,.60),
+//         var(--v-glow-m),
+//         0 16px 40px rgba(0,0,0,.45);
+//       &::after { opacity: 1; animation: vi-shimmer .65s linear; }
+//     }
+//   }
+
+//   // listening: amber gradient + rings
+//   &--listening {
+//     background: var(--v-grad-amber);
+//     box-shadow:
+//       0 0 0 1px rgba(245,158,11,.45),
+//       var(--v-glow-a);
+//     cursor: not-allowed;
+//   }
+
+//   // loading: ghost style with spinner
+//   &--loading {
+//     background: rgba(139,92,246,.15);
+//     border: 1.5px solid var(--v-b2);
+//     box-shadow: none;
+//     cursor: not-allowed;
+//   }
+
+//   &__spinner {
+//     width: 22px; height: 22px;
+//     border: 2.5px solid rgba(255,255,255,.18);
+//     border-top-color: rgba(255,255,255,.9);
+//     border-radius: 50%;
+//     animation: vi-spin .75s linear infinite;
+//   }
+
+//   &:active:not(:disabled) { transform: scale(.93); }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+// // ─────────────────────────────────────────────────────────────────────────────
+// // voice-interview.scss  ·  AI No-Code dark purple platform aesthetic
+// // ─────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+// // ─────────────────────────────────────────────────────────────────────────────
+// // voice-interview.scss
+// // AI No-Code Platform aesthetic — deep near-black, vivid purple-magenta mesh,
+// // dot grid, frosted-glass panels, luminous glow borders, neon pill badges
+// // ─────────────────────────────────────────────────────────────────────────────
+
+// @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+// // ── Design tokens ──────────────────────────────────────────────────────────────
+// .vi-page {
+//   // backgrounds
+//   --v-void:       #06060e;
+//   --v-base:       #09081a;
+//   --v-surface:    #0e0c20;
+//   --v-card:       #12102a;
+//   --v-elevated:   #181530;
+//   --v-hover:      #1f1b38;
+
+//   // borders / glows  (purple-spectrum)
+//   --v-b0:         rgba(56,189,248,.06);
+//   --v-b1:         rgba(56,189,248,.13);
+//   --v-b2:         rgba(56,189,248,.24);
+//   --v-b3:         rgba(56,213,255,.50);
+//   --v-glow-v:     0 0 32px rgba(56,189,248,.32);
+//   --v-glow-m:     0 0 32px rgba(34,211,238,.26);
+//   --v-glow-a:     0 0 24px rgba(245,158,11,.28);
+
+//   // text
+//   --v-t1:         #f0f8ff;
+//   --v-t2:         #7a93b8;
+//   --v-t3:         #3d5070;
+
+//   // accent spectrum
+//   --v-violet:     #38d5ff;
+//   --v-purple:     #5ee2ff;
+//   --v-magenta:    #38bdf8;
+//   --v-indigo:     #60a5fa;
+//   --v-cyan:       #22d3ee;
+//   --v-green:      #10b981;
+//   --v-amber:      #f59e0b;
+//   --v-red:        #f43f5e;
+
+//   // gradient shortcuts
+//   --v-grad:       linear-gradient(135deg,#38d5ff 0%,#5ee2ff 45%,#38bdf8 100%);
+//   --v-grad-user:  linear-gradient(135deg,#60a5fa 0%,#38d5ff 100%);
+//   --v-grad-amber: linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
+
+//   --v-ease:       cubic-bezier(.4,0,.2,1);
+//   --v-font-d:     'Syne','Segoe UI',sans-serif;
+//   --v-font-b:     'DM Sans',system-ui,sans-serif;
+// }
+
+// // ── Keyframes ──────────────────────────────────────────────────────────────────
+// @keyframes vi-spin {
+//   to { transform: rotate(360deg); }
+// }
+// @keyframes vi-fadeUp {
+//   from { opacity: 0; transform: translateY(14px); }
+//   to   { opacity: 1; transform: translateY(0);    }
+// }
+// @keyframes vi-pulse {
+//   0%,100% { opacity: .5; }
+//   50%     { opacity: 1;  }
+// }
+// @keyframes vi-pulse-scale {
+//   0%,100% { transform: scale(1);    opacity: .55; }
+//   50%     { transform: scale(1.06); opacity: 1;   }
+// }
+// @keyframes vi-ripple {
+//   0%   { transform: scale(1);   opacity: .65; }
+//   100% { transform: scale(2.5); opacity: 0;   }
+// }
+// @keyframes vi-ripple2 {
+//   0%   { transform: scale(1);   opacity: .40; }
+//   100% { transform: scale(3.1); opacity: 0;   }
+// }
+// @keyframes vi-wave {
+//   0%,100% { height: 4px;  }
+//   50%     { height: 24px; }
+// }
+// @keyframes vi-dot {
+//   0%,80%,100% { transform: scale(.55); opacity: .35; }
+//   40%         { transform: scale(1);   opacity: 1;   }
+// }
+// @keyframes vi-orb {
+//   0%,100% { transform: translate(0,0) scale(1); }
+//   35%     { transform: translate(45px,-35px) scale(1.07); }
+//   70%     { transform: translate(-30px,22px) scale(.94); }
+// }
+// @keyframes vi-shimmer {
+//   from { background-position: -200% center; }
+//   to   { background-position:  200% center; }
+// }
+// @keyframes vi-grid-pan {
+//   from { background-position: 0 0; }
+//   to   { background-position: 28px 28px; }
+// }
+
+// // ── Page shell ─────────────────────────────────────────────────────────────────
+// .vi-page {
+//   min-height: 100vh;
+//   width: 100%;
+//   background: var(--v-void);
+//   color: var(--v-t1);
+//   font-family: var(--v-font-b);
+//   font-size: 15px;
+//   -webkit-font-smoothing: antialiased;
+//   display: flex;
+//   flex-direction: column;
+//   position: relative;
+//   overflow: hidden;
+
+//   // ── layered mesh gradient (matches reference: top-right violet bloom,
+//   //    left-mid indigo, bottom-center magenta fade) ──────────────────────
+//   &::before {
+//     content: '';
+//     position: fixed; inset: 0;
+//     background:
+//       radial-gradient(ellipse 72% 58% at 72% -8%,  rgba(56,189,248,.24) 0%, transparent 62%),
+//       radial-gradient(ellipse 55% 42% at 100% 35%, rgba(34,211,238,.16) 0%, transparent 58%),
+//       radial-gradient(ellipse 48% 42% at 0%   72%, rgba(96,165,250,.13) 0%, transparent 58%),
+//       radial-gradient(ellipse 60% 50% at 45% 105%, rgba(56,189,248,.11) 0%, transparent 60%);
+//     pointer-events: none;
+//     z-index: 0;
+//     animation: vi-pulse 10s ease-in-out infinite;
+//   }
+
+//   // ── animated fine dot-grid (signature No-Code platform texture) ────────
+//   &::after {
+//     content: '';
+//     position: fixed; inset: 0;
+//     background-image: radial-gradient(rgba(56,189,248,.20) 1px, transparent 1px);
+//     background-size: 28px 28px;
+//     animation: vi-grid-pan 6s linear infinite;
+//     pointer-events: none;
+//     z-index: 0;
+//     mask-image:
+//       radial-gradient(ellipse 85% 65% at 50% 15%, black 5%, transparent 80%),
+//       radial-gradient(ellipse 60% 40% at 50% 90%, black 5%, transparent 70%);
+//     mask-composite: add;
+//     -webkit-mask-composite: destination-over;
+//   }
+
+//   > * { position: relative; z-index: 1; }
+// }
+
+// // ── Floating ambient orbs ──────────────────────────────────────────────────────
+// .vi-orb {
+//   position: fixed;
+//   border-radius: 50%;
+//   pointer-events: none;
+//   z-index: 0;
+//   filter: blur(1px);
+
+//   &--a {
+//     width: 560px; height: 560px;
+//     top: -180px; left: -120px;
+//     background: radial-gradient(circle at 38% 38%,
+//       rgba(56,189,248,.18) 0%,
+//       rgba(96,165,250,.06) 45%,
+//       transparent 68%);
+//     animation: vi-orb 18s ease-in-out infinite;
+//   }
+
+//   &--b {
+//     width: 380px; height: 380px;
+//     bottom: -80px; right: -60px;
+//     background: radial-gradient(circle at 62% 62%,
+//       rgba(34,211,238,.15) 0%,
+//       rgba(56,189,248,.05) 50%,
+//       transparent 70%);
+//     animation: vi-orb 24s ease-in-out infinite reverse;
+//   }
+// }
+
+// // ── Top header bar ─────────────────────────────────────────────────────────────
+// .vi-header {
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   padding: 1rem 1.75rem;
+//   background: rgba(9,8,26,.78);
+//   backdrop-filter: blur(18px);
+//   -webkit-backdrop-filter: blur(18px);
+//   border-bottom: 1px solid var(--v-b0);
+//   flex-shrink: 0;
+//   position: relative;
+
+//   // luminous top-edge gradient line (matches reference card borders)
+//   &::before {
+//     content: '';
+//     position: absolute;
+//     top: 0; left: 6%; right: 6%; height: 1px;
+//     background: linear-gradient(
+//       90deg,
+//       transparent 0%,
+//       rgba(56,189,248,.80) 30%,
+//       rgba(56,213,255,.70) 50%,
+//       rgba(34,211,238,.65) 70%,
+//       transparent 100%
+//     );
+//     pointer-events: none;
+//   }
+
+//   &__left {
+//     display: flex;
+//     align-items: center;
+//     gap: .9rem;
+//   }
+
+//   // ── back button ─────────────────────────────────────────────────────────
+//   &__back {
+//     display: flex; align-items: center; justify-content: center;
+//     width: 34px; height: 34px;
+//     background: rgba(255,255,255,.04);
+//     border: 1px solid var(--v-b1);
+//     border-radius: 8px;
+//     color: var(--v-t2);
+//     cursor: pointer;
+//     transition: all .2s var(--v-ease);
+//     flex-shrink: 0;
+
+//     &:hover {
+//       background: rgba(56,189,248,.12);
+//       border-color: var(--v-b2);
+//       color: var(--v-t1);
+//       box-shadow: var(--v-glow-v);
+//     }
+//     &:active { transform: scale(.95); }
+//   }
+
+//   // ── title + role ────────────────────────────────────────────────────────
+//   &__meta { display: flex; flex-direction: column; gap: .18rem; }
+
+//   &__title {
+//     font-family: var(--v-font-d);
+//     font-size: .95rem; font-weight: 700;
+//     color: var(--v-t1);
+//     letter-spacing: -.025em;
+//     line-height: 1;
+//   }
+
+//   &__role {
+//     font-size: .72rem;
+//     color: var(--v-t3);
+//     line-height: 1;
+//     letter-spacing: .01em;
+//   }
+
+//   &__right {
+//     display: flex; align-items: center; gap: .65rem;
+//   }
+
+//   // ── "Live Session" pill ─────────────────────────────────────────────────
+//   &__status {
+//     display: inline-flex; align-items: center; gap: .42rem;
+//     font-size: .68rem; font-weight: 700;
+//     letter-spacing: .09em; text-transform: uppercase;
+//     color: var(--v-violet);
+//     background: rgba(56,189,248,.10);
+//     border: 1px solid rgba(56,189,248,.22);
+//     padding: .3rem .9rem;
+//     border-radius: 999px;
+//     box-shadow: 0 0 14px rgba(56,189,248,.12);
+
+//     &__dot {
+//       width: 5px; height: 5px;
+//       border-radius: 50%;
+//       background: var(--v-green);
+//       box-shadow: 0 0 7px var(--v-green);
+//       animation: vi-pulse 2s ease-in-out infinite;
+//     }
+//   }
+
+//   // ── restart button ──────────────────────────────────────────────────────
+//   &__restart {
+//     display: inline-flex; align-items: center; gap: .42rem;
+//     padding: .52rem 1rem;
+//     background: rgba(255,255,255,.04);
+//     border: 1px solid var(--v-b1);
+//     border-radius: 8px;
+//     color: var(--v-t2);
+//     font-family: var(--v-font-b);
+//     font-size: .78rem; font-weight: 500;
+//     cursor: pointer;
+//     transition: all .2s var(--v-ease);
+
+//     svg { flex-shrink: 0; }
+
+//     &:hover:not(:disabled) {
+//       background: rgba(56,189,248,.10);
+//       border-color: var(--v-b2);
+//       color: var(--v-t1);
+//     }
+//     &:disabled { opacity: .4; cursor: not-allowed; }
+//     &:active:not(:disabled) { transform: scale(.97); }
+//   }
+// }
+
+// // ── Message feed ───────────────────────────────────────────────────────────────
+// .vi-feed {
+//   flex: 1;
+//   overflow-y: auto;
+//   padding: 2rem 1.5rem 1rem;
+//   display: flex;
+//   flex-direction: column;
+//   gap: 1.5rem;
+//   max-width: 840px;
+//   width: 100%;
+//   margin: 0 auto;
+//   box-sizing: border-box;
+
+//   &::-webkit-scrollbar       { width: 3px; }
+//   &::-webkit-scrollbar-track { background: transparent; }
+//   &::-webkit-scrollbar-thumb { background: var(--v-b1); border-radius: 2px; }
+// }
+
+// // ── Empty / init state ─────────────────────────────────────────────────────────
+// .vi-empty {
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   justify-content: center;
+//   gap: 1.1rem;
+//   padding: 5rem 2rem;
+//   text-align: center;
+//   animation: vi-fadeUp .5s var(--v-ease) both;
+
+//   &__icon {
+//     width: 60px; height: 60px;
+//     background: rgba(56,189,248,.10);
+//     border: 1px solid rgba(56,189,248,.22);
+//     border-radius: 50%;
+//     display: flex; align-items: center; justify-content: center;
+//     color: var(--v-violet);
+//     box-shadow: var(--v-glow-v);
+//     animation: vi-pulse-scale 2.8s ease-in-out infinite;
+//   }
+
+//   p {
+//     font-size: .88rem;
+//     color: var(--v-t3);
+//     margin: 0;
+//     letter-spacing: .01em;
+//   }
+// }
+
+// // ── Message bubble row ─────────────────────────────────────────────────────────
+// .vi-msg {
+//   display: flex;
+//   flex-direction: column;
+//   animation: vi-fadeUp .28s var(--v-ease) both;
+
+//   &--ai   { align-items: flex-start; }
+//   &--user { align-items: flex-end;   }
+
+//   // sender label
+//   &__sender {
+//     font-size: .63rem;
+//     font-weight: 700;
+//     text-transform: uppercase;
+//     letter-spacing: .10em;
+//     margin-bottom: .38rem;
+
+//     &--ai   { color: var(--v-violet); padding-left: .25rem; }
+//     &--user { color: var(--v-t3);     padding-right: .25rem; }
+//   }
+
+//   // bubble shell
+//   &__bubble {
+//     max-width: 74%;
+//     padding: 1rem 1.3rem;
+//     font-size: .9rem;
+//     line-height: 1.72;
+//     color: var(--v-t1);
+
+//     // ── AI bubble: dark frosted glass with luminous top-left corner ────────
+//     &--ai {
+//       background: rgba(14,12,32,.88);
+//       border: 1px solid var(--v-b1);
+//       border-radius: 4px 20px 20px 20px;
+//       backdrop-filter: blur(14px);
+//       -webkit-backdrop-filter: blur(14px);
+//       box-shadow:
+//         0 0 0 1px rgba(255,255,255,.025) inset,
+//         0 6px 28px rgba(0,0,0,.38);
+//       position: relative;
+
+//       // micro luminous corner line
+//       &::before {
+//         content: '';
+//         position: absolute;
+//         top: 0; left: 4px; right: 40%; height: 1px;
+//         background: linear-gradient(
+//           90deg,
+//           rgba(56,189,248,.70),
+//           transparent
+//         );
+//         border-radius: 1px;
+//         pointer-events: none;
+//       }
+//     }
+
+//     // ── User bubble: vivid gradient matching CTA button style ──────────────
+//     &--user {
+//       background: var(--v-grad-user);
+//       border-radius: 20px 4px 20px 20px;
+//       box-shadow:
+//         0 0 0 1px rgba(96,165,250,.35),
+//         0 6px 24px rgba(96,165,250,.30);
+//     }
+//   }
+// }
+
+// // ── Typing indicator ───────────────────────────────────────────────────────────
+// .vi-typing {
+//   display: flex;
+//   flex-direction: column;
+//   align-items: flex-start;
+//   animation: vi-fadeUp .28s var(--v-ease) both;
+
+//   &__label {
+//     font-size: .63rem;
+//     font-weight: 700;
+//     text-transform: uppercase;
+//     letter-spacing: .10em;
+//     color: var(--v-violet);
+//     padding-left: .25rem;
+//     margin-bottom: .38rem;
+//   }
+
+//   &__bubble {
+//     padding: .9rem 1.15rem;
+//     border-radius: 4px 20px 20px 20px;
+//     background: rgba(14,12,32,.88);
+//     border: 1px solid var(--v-b1);
+//     backdrop-filter: blur(14px);
+//     -webkit-backdrop-filter: blur(14px);
+//     display: flex; align-items: center; gap: .38rem;
+//     box-shadow: 0 6px 28px rgba(0,0,0,.35);
+//   }
+
+//   &__dot {
+//     width: 7px; height: 7px;
+//     border-radius: 50%;
+//     background: var(--v-violet);
+//     opacity: .5;
+
+//     &:nth-child(1) { animation: vi-dot 1.2s .00s ease-in-out infinite; }
+//     &:nth-child(2) { animation: vi-dot 1.2s .18s ease-in-out infinite; }
+//     &:nth-child(3) { animation: vi-dot 1.2s .36s ease-in-out infinite; }
+//   }
+// }
+
+// // ── Audio wave visualiser (shown inside mic when listening) ────────────────────
+// .vi-wave {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   gap: 3px;
+//   height: 32px;
+
+//   &__bar {
+//     width: 3px;
+//     min-height: 4px;
+//     border-radius: 2px;
+//     background: #fff;
+
+//     &:nth-child(1) { animation: vi-wave .85s .00s ease-in-out infinite; }
+//     &:nth-child(2) { animation: vi-wave .85s .10s ease-in-out infinite; }
+//     &:nth-child(3) { animation: vi-wave .85s .18s ease-in-out infinite; }
+//     &:nth-child(4) { animation: vi-wave .85s .05s ease-in-out infinite; }
+//     &:nth-child(5) { animation: vi-wave .85s .22s ease-in-out infinite; }
+//     &:nth-child(6) { animation: vi-wave .85s .12s ease-in-out infinite; }
+//     &:nth-child(7) { animation: vi-wave .85s .08s ease-in-out infinite; }
+//   }
+// }
+
+// // ── Bottom dock ────────────────────────────────────────────────────────────────
+// .vi-dock {
+//   flex-shrink: 0;
+//   background: rgba(9,8,26,.82);
+//   backdrop-filter: blur(22px);
+//   -webkit-backdrop-filter: blur(22px);
+//   border-top: 1px solid var(--v-b0);
+//   padding: 1.6rem 2rem 2.2rem;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   gap: 1.1rem;
+//   position: relative;
+
+//   // subtle inner top-glow matching header
+//   &::before {
+//     content: '';
+//     position: absolute;
+//     top: 0; left: 20%; right: 20%; height: 1px;
+//     background: linear-gradient(
+//       90deg,
+//       transparent,
+//       rgba(56,189,248,.40) 40%,
+//       rgba(34,211,238,.30) 60%,
+//       transparent
+//     );
+//     pointer-events: none;
+//   }
+
+//   // ── error banner ────────────────────────────────────────────────────────
+//   &__error {
+//     display: flex; align-items: center; gap: .5rem;
+//     padding: .65rem 1.1rem;
+//     background: rgba(244,63,94,.08);
+//     border: 1px solid rgba(244,63,94,.22);
+//     border-radius: 10px;
+//     color: #fb7185;
+//     font-size: .8rem;
+//     width: 100%; max-width: 520px;
+//     justify-content: center;
+//     box-shadow: 0 0 16px rgba(244,63,94,.08);
+//   }
+
+//   // ── hint text ───────────────────────────────────────────────────────────
+//   &__hint {
+//     font-size: .78rem;
+//     color: var(--v-t3);
+//     text-align: center;
+//     margin: 0;
+//     letter-spacing: .02em;
+//   }
+// }
+
+// // ── Mic button wrapper + ripple rings ──────────────────────────────────────────
+// .vi-mic-wrap {
+//   position: relative;
+//   display: flex; align-items: center; justify-content: center;
+// }
+
+// .vi-ring {
+//   position: absolute;
+//   border-radius: 50%;
+//   pointer-events: none;
+
+//   &--1 {
+//     width: 88px; height: 88px;
+//     border: 2px solid rgba(34,211,238,.50);
+//     animation: vi-ripple 1.5s ease-out infinite;
+//   }
+//   &--2 {
+//     width: 88px; height: 88px;
+//     border: 2px solid rgba(56,189,248,.32);
+//     animation: vi-ripple2 1.5s .32s ease-out infinite;
+//   }
+// }
+
+// // ── The mic button ─────────────────────────────────────────────────────────────
+// .vi-mic-btn {
+//   position: relative; z-index: 1;
+//   width: 72px; height: 72px;
+//   border-radius: 50%;
+//   border: none;
+//   cursor: pointer;
+//   display: flex; align-items: center; justify-content: center;
+//   color: #fff;
+//   flex-shrink: 0;
+//   transition: all .22s var(--v-ease);
+//   outline: none;
+
+//   // idle: brand gradient + outer glow ring
+//   &--idle {
+//     background: var(--v-grad);
+//     box-shadow:
+//       0 0 0 1px rgba(56,189,248,.45),
+//       var(--v-glow-v),
+//       0 12px 32px rgba(0,0,0,.38);
+
+//     // shimmer sweep on hover
+//     &::after {
+//       content: '';
+//       position: absolute; inset: 0;
+//       border-radius: 50%;
+//       background: linear-gradient(
+//         105deg,
+//         transparent 30%,
+//         rgba(255,255,255,.18) 50%,
+//         transparent 70%
+//       );
+//       background-size: 200% auto;
+//       opacity: 0; transition: opacity .2s;
+//     }
+
+//     &:hover {
+//       transform: scale(1.07);
+//       box-shadow:
+//         0 0 0 1px rgba(34,211,238,.60),
+//         var(--v-glow-m),
+//         0 16px 40px rgba(0,0,0,.45);
+//       &::after { opacity: 1; animation: vi-shimmer .65s linear; }
+//     }
+//   }
+
+//   // listening: amber gradient + rings
+//   &--listening {
+//     background: var(--v-grad-amber);
+//     box-shadow:
+//       0 0 0 1px rgba(245,158,11,.45),
+//       var(--v-glow-a);
+//     cursor: not-allowed;
+//   }
+
+//   // loading: ghost style with spinner
+//   &--loading {
+//     background: rgba(56,189,248,.15);
+//     border: 1.5px solid var(--v-b2);
+//     box-shadow: none;
+//     cursor: not-allowed;
+//   }
+
+//   &__spinner {
+//     width: 22px; height: 22px;
+//     border: 2.5px solid rgba(255,255,255,.18);
+//     border-top-color: rgba(255,255,255,.9);
+//     border-radius: 50%;
+//     animation: vi-spin .75s linear infinite;
+//   }
+
+//   &:active:not(:disabled) { transform: scale(.93); }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// voice-interview.scss  ·  AI No-Code dark purple platform aesthetic
+// ─────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// voice-interview.scss
+// AI No-Code Platform aesthetic — deep near-black, vivid purple-magenta mesh,
+// dot grid, frosted-glass panels, luminous glow borders, neon pill badges
+// ─────────────────────────────────────────────────────────────────────────────
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+// ── Design tokens ──────────────────────────────────────────────────────────────
+.vi-page {
+  // backgrounds
+  --v-void:       #03080f;
+  --v-base:       #060d1a;
+  --v-surface:    #090f1e;
+  --v-card:       #0d1626;
+  --v-elevated:   #121d30;
+  --v-hover:      #172238;
+
+  // borders / glows  (cyan-spectrum)
+  --v-b0:         rgba(56,189,248,.06);
+  --v-b1:         rgba(56,189,248,.12);
+  --v-b2:         rgba(56,189,248,.22);
+  --v-b3:         rgba(56,213,255,.48);
+  --v-glow-v:     0 0 32px rgba(56,189,248,.28);
+  --v-glow-m:     0 0 32px rgba(34,211,238,.22);
+  --v-glow-a:     0 0 24px rgba(245,158,11,.28);
+
+  // text
+  --v-t1:         #f0f8ff;
+  --v-t2:         #7a93b8;
+  --v-t3:         #3d5070;
+
+  // accent spectrum
+  --v-violet:     #38d5ff;
+  --v-purple:     #5ee2ff;
+  --v-magenta:    #38bdf8;
+  --v-indigo:     #60a5fa;
+  --v-cyan:       #38d5ff;
+  --v-green:      #22d56f;
+  --v-amber:      #f59e0b;
+  --v-red:        hsl(235, 89%, 60%);
+
+  // gradient shortcuts
+  --v-grad:       linear-gradient(135deg,#38d5ff 0%,#38bdf8 45%,#60a5fa 100%);
+  --v-grad-user:  linear-gradient(135deg,#38bdf8 0%,#38d5ff 100%);
+  --v-grad-amber: linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
+
+  --v-ease:       cubic-bezier(.4,0,.2,1);
+  --v-font-d:     'Syne','Segoe UI',sans-serif;
+  --v-font-b:     'DM Sans',system-ui,sans-serif;
+}
+
+// ── Keyframes ──────────────────────────────────────────────────────────────────
+@keyframes vi-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes vi-fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes vi-pulse {
+  0%,100% { opacity: .5; }
+  50%     { opacity: 1;  }
+}
+@keyframes vi-pulse-scale {
+  0%,100% { transform: scale(1);    opacity: .55; }
+  50%     { transform: scale(1.06); opacity: 1;   }
+}
+@keyframes vi-ripple {
+  0%   { transform: scale(1);   opacity: .65; }
+  100% { transform: scale(2.5); opacity: 0;   }
+}
+@keyframes vi-ripple2 {
+  0%   { transform: scale(1);   opacity: .40; }
+  100% { transform: scale(3.1); opacity: 0;   }
+}
+@keyframes vi-wave {
+  0%,100% { height: 4px;  }
+  50%     { height: 24px; }
+}
+@keyframes vi-dot {
+  0%,80%,100% { transform: scale(.55); opacity: .35; }
+  40%         { transform: scale(1);   opacity: 1;   }
+}
+@keyframes vi-orb {
+  0%,100% { transform: translate(0,0) scale(1); }
+  35%     { transform: translate(45px,-35px) scale(1.07); }
+  70%     { transform: translate(-30px,22px) scale(.94); }
+}
+@keyframes vi-shimmer {
+  from { background-position: -200% center; }
+  to   { background-position:  200% center; }
+}
+@keyframes vi-grid-pan {
+  from { background-position: 0 0; }
+  to   { background-position: 28px 28px; }
+}
+
+// ── Page shell ─────────────────────────────────────────────────────────────────
+.vi-page {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--v-void);
+  color: var(--v-t1);
+  font-family: var(--v-font-b);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+
+  // ── layered mesh gradient (matches reference: top-right violet bloom,
+  //    left-mid indigo, bottom-center magenta fade) ──────────────────────
+  &::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 72% 58% at 72% -8%,  rgba(56,189,248,.24) 0%, transparent 62%),
+      radial-gradient(ellipse 55% 42% at 100% 35%, rgba(34,211,238,.16) 0%, transparent 58%),
+      radial-gradient(ellipse 48% 42% at 0%   72%, rgba(96,165,250,.13) 0%, transparent 58%),
+      radial-gradient(ellipse 60% 50% at 45% 105%, rgba(56,189,248,.11) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+    animation: vi-pulse 10s ease-in-out infinite;
+  }
+
+  // ── animated fine dot-grid (signature No-Code platform texture) ────────
+  &::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(rgba(56,189,248,.20) 1px, transparent 1px);
+    background-size: 28px 28px;
+    animation: vi-grid-pan 6s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+    mask-image:
+      radial-gradient(ellipse 85% 65% at 50% 15%, black 5%, transparent 80%),
+      radial-gradient(ellipse 60% 40% at 50% 90%, black 5%, transparent 70%);
+    mask-composite: add;
+    -webkit-mask-composite: destination-over;
+  }
+
+  > * { position: relative; z-index: 1; }
+}
+
+// ── Floating ambient orbs ──────────────────────────────────────────────────────
+.vi-orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(1px);
+
+  &--a {
+    width: 560px; height: 560px;
+    top: -180px; left: -120px;
+    background: radial-gradient(circle at 38% 38%,
+      rgba(56,189,248,.18) 0%,
+      rgba(96,165,250,.06) 45%,
+      transparent 68%);
+    animation: vi-orb 18s ease-in-out infinite;
+  }
+
+  &--b {
+    width: 380px; height: 380px;
+    bottom: -80px; right: -60px;
+    background: radial-gradient(circle at 62% 62%,
+      rgba(34,211,238,.15) 0%,
+      rgba(56,189,248,.05) 50%,
+      transparent 70%);
+    animation: vi-orb 24s ease-in-out infinite reverse;
+  }
+}
+
+// ── Top header bar ─────────────────────────────────────────────────────────────
+.vi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.75rem;
+  background: rgba(9,8,26,.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--v-b0);
+  flex-shrink: 0;
+  position: relative;
+
+  // luminous top-edge gradient line (matches reference card borders)
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 6%; right: 6%; height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(56,189,248,.80) 30%,
+      rgba(56,213,255,.70) 50%,
+      rgba(34,211,238,.65) 70%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+  }
+
+  // ── back button ─────────────────────────────────────────────────────────
+  &__back {
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--v-b1);
+    border-radius: 8px;
+    color: var(--v-t2);
+    cursor: pointer;
+    transition: all .2s var(--v-ease);
+    flex-shrink: 0;
+
+    &:hover {
+      background: rgba(56,189,248,.12);
+      border-color: var(--v-b2);
+      color: var(--v-t1);
+      box-shadow: var(--v-glow-v);
+    }
+    &:active { transform: scale(.95); }
+  }
+
+  // ── title + role ────────────────────────────────────────────────────────
+  &__meta { display: flex; flex-direction: column; gap: .18rem; }
+
+  &__title {
+    font-family: var(--v-font-d);
+    font-size: .95rem; font-weight: 700;
+    color: var(--v-t1);
+    letter-spacing: -.025em;
+    line-height: 1;
+  }
+
+  &__role {
+    font-size: .72rem;
+    color: var(--v-t3);
+    line-height: 1;
+    letter-spacing: .01em;
+  }
+
+  &__right {
+    display: flex; align-items: center; gap: .65rem;
+  }
+
+  // ── "Live Session" pill ─────────────────────────────────────────────────
+  &__status {
+    display: inline-flex; align-items: center; gap: .42rem;
+    font-size: .68rem; font-weight: 700;
+    letter-spacing: .09em; text-transform: uppercase;
+    color: var(--v-violet);
+    background: rgba(56,189,248,.10);
+    border: 1px solid rgba(56,189,248,.22);
+    padding: .3rem .9rem;
+    border-radius: 999px;
+    box-shadow: 0 0 14px rgba(56,189,248,.12);
+
+    &__dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--v-green);
+      box-shadow: 0 0 7px var(--v-green);
+      animation: vi-pulse 2s ease-in-out infinite;
+    }
+  }
+
+  // ── restart button ──────────────────────────────────────────────────────
+  &__restart {
+    display: inline-flex; align-items: center; gap: .42rem;
+    padding: .52rem 1rem;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--v-b1);
+    border-radius: 8px;
+    color: var(--v-t2);
+    font-family: var(--v-font-b);
+    font-size: .78rem; font-weight: 500;
+    cursor: pointer;
+    transition: all .2s var(--v-ease);
+
+    svg { flex-shrink: 0; }
+
+    &:hover:not(:disabled) {
+      background: rgba(56,189,248,.10);
+      border-color: var(--v-b2);
+      color: var(--v-t1);
+    }
+    &:disabled { opacity: .4; cursor: not-allowed; }
+    &:active:not(:disabled) { transform: scale(.97); }
+  }
+}
+
+// ── Message feed ───────────────────────────────────────────────────────────────
+.vi-feed {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 840px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+
+  &::-webkit-scrollbar       { width: 3px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: var(--v-b1); border-radius: 2px; }
+}
+
+// ── Empty / init state ─────────────────────────────────────────────────────────
+.vi-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  padding: 5rem 2rem;
+  text-align: center;
+  animation: vi-fadeUp .5s var(--v-ease) both;
+
+  &__icon {
+    width: 60px; height: 60px;
+    background: rgba(56,189,248,.10);
+    border: 1px solid rgba(56,189,248,.22);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--v-violet);
+    box-shadow: var(--v-glow-v);
+    animation: vi-pulse-scale 2.8s ease-in-out infinite;
+  }
+
+  p {
+    font-size: .88rem;
+    color: var(--v-t3);
+    margin: 0;
+    letter-spacing: .01em;
+  }
+}
+
+// ── Message bubble row ─────────────────────────────────────────────────────────
+.vi-msg {
+  display: flex;
+  flex-direction: column;
+  animation: vi-fadeUp .28s var(--v-ease) both;
+
+  &--ai   { align-items: flex-start; }
+  &--user { align-items: flex-end;   }
+
+  // sender label
+  &__sender {
+    font-size: .63rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .10em;
+    margin-bottom: .38rem;
+
+    &--ai   { color: var(--v-violet); padding-left: .25rem; }
+    &--user { color: var(--v-t3);     padding-right: .25rem; }
+  }
+
+  // bubble shell
+  &__bubble {
+    max-width: 74%;
+    padding: 1rem 1.3rem;
+    font-size: .9rem;
+    line-height: 1.72;
+    color: var(--v-t1);
+
+    // ── AI bubble: dark frosted glass with luminous top-left corner ────────
+    &--ai {
+      background: rgba(14,12,32,.88);
+      border: 1px solid var(--v-b1);
+      border-radius: 4px 20px 20px 20px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.025) inset,
+        0 6px 28px rgba(0,0,0,.38);
+      position: relative;
+
+      // micro luminous corner line
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 4px; right: 40%; height: 1px;
+        background: linear-gradient(
+          90deg,
+          rgba(56,189,248,.70),
+          transparent
+        );
+        border-radius: 1px;
+        pointer-events: none;
+      }
+    }
+
+    // ── User bubble: vivid gradient matching CTA button style ──────────────
+    &--user {
+      background: var(--v-grad-user);
+      border-radius: 20px 4px 20px 20px;
+      box-shadow:
+        0 0 0 1px rgba(96,165,250,.35),
+        0 6px 24px rgba(96,165,250,.30);
+    }
+  }
+}
+
+// ── Typing indicator ───────────────────────────────────────────────────────────
+.vi-typing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  animation: vi-fadeUp .28s var(--v-ease) both;
+
+  &__label {
+    font-size: .63rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .10em;
+    color: var(--v-violet);
+    padding-left: .25rem;
+    margin-bottom: .38rem;
+  }
+
+  &__bubble {
+    padding: .9rem 1.15rem;
+    border-radius: 4px 20px 20px 20px;
+    background: rgba(14,12,32,.88);
+    border: 1px solid var(--v-b1);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    display: flex; align-items: center; gap: .38rem;
+    box-shadow: 0 6px 28px rgba(0,0,0,.35);
+  }
+
+  &__dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--v-violet);
+    opacity: .5;
+
+    &:nth-child(1) { animation: vi-dot 1.2s .00s ease-in-out infinite; }
+    &:nth-child(2) { animation: vi-dot 1.2s .18s ease-in-out infinite; }
+    &:nth-child(3) { animation: vi-dot 1.2s .36s ease-in-out infinite; }
+  }
+}
+
+// ── Audio wave visualiser (shown inside mic when listening) ────────────────────
+.vi-wave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 32px;
+
+  &__bar {
+    width: 3px;
+    min-height: 4px;
+    border-radius: 2px;
+    background: #fff;
+
+    &:nth-child(1) { animation: vi-wave .85s .00s ease-in-out infinite; }
+    &:nth-child(2) { animation: vi-wave .85s .10s ease-in-out infinite; }
+    &:nth-child(3) { animation: vi-wave .85s .18s ease-in-out infinite; }
+    &:nth-child(4) { animation: vi-wave .85s .05s ease-in-out infinite; }
+    &:nth-child(5) { animation: vi-wave .85s .22s ease-in-out infinite; }
+    &:nth-child(6) { animation: vi-wave .85s .12s ease-in-out infinite; }
+    &:nth-child(7) { animation: vi-wave .85s .08s ease-in-out infinite; }
+  }
+}
+
+// ── Bottom dock ────────────────────────────────────────────────────────────────
+.vi-dock {
+  flex-shrink: 0;
+  background: rgba(9,8,26,.82);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-top: 1px solid var(--v-b0);
+  padding: 1.6rem 2rem 2.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  position: relative;
+
+  // subtle inner top-glow matching header
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; right: 20%; height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(56,189,248,.40) 40%,
+      #46bcef4d 60%,
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  // ── error banner ────────────────────────────────────────────────────────
+  &__error {
+    display: flex; align-items: center; gap: .5rem;
+    padding: .65rem 1.1rem;
+    background: rgba(244,63,94,.08);
+    border: 1px solid rgba(244,63,94,.22);
+    border-radius: 10px;
+    color: #fb7185;
+    font-size: .8rem;
+    width: 100%; max-width: 520px;
+    justify-content: center;
+    box-shadow: 0 0 16px rgba(244,63,94,.08);
+  }
+
+  // ── hint text ───────────────────────────────────────────────────────────
+  &__hint {
+    font-size: .78rem;
+    color: var(--v-t3);
+    text-align: center;
+    margin: 0;
+    letter-spacing: .02em;
+  }
+}
+
+// ── Mic button wrapper + ripple rings ──────────────────────────────────────────
+.vi-mic-wrap {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.vi-ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+
+  &--1 {
+    width: 88px; height: 88px;
+    border: 2px solid #46d0ef80;
+    animation: vi-ripple 1.5s ease-out infinite;
+  }
+  &--2 {
+    width: 88px; height: 88px;
+    border: 2px solid rgba(56,189,248,.32);
+    animation: vi-ripple2 1.5s .32s ease-out infinite;
+  }
+}
+
+// ── The mic button ─────────────────────────────────────────────────────────────
+.vi-mic-btn {
+  position: relative; z-index: 1;
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  transition: all .22s var(--v-ease);
+  outline: none;
+
+  // idle: brand gradient + outer glow ring
+  &--idle {
+    background: var(--v-grad);
+    box-shadow:
+      0 0 0 1px rgba(56,189,248,.45),
+      var(--v-glow-v),
+      0 12px 32px rgba(0,0,0,.38);
+
+    // shimmer sweep on hover
+    &::after {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      background: linear-gradient(
+        105deg,
+        transparent 30%,
+        rgba(255,255,255,.18) 50%,
+        transparent 70%
+      );
+      background-size: 200% auto;
+      opacity: 0; transition: opacity .2s;
+    }
+
+    &:hover {
+      transform: scale(1.07);
+      box-shadow:
+        0 0 0 1px rgba(34,211,238,.60),
+        var(--v-glow-m),
+        0 16px 40px rgba(0,0,0,.45);
+      &::after { opacity: 1; animation: vi-shimmer .65s linear; }
+    }
+  }
+
+  // listening: amber gradient + rings
+  &--listening {
+    background: var(--v-grad-amber);
+    box-shadow:
+      0 0 0 1px rgba(245,158,11,.45),
+      var(--v-glow-a);
+    cursor: not-allowed;
+  }
+
+  // loading: ghost style with spinner
+  &--loading {
+    background: rgba(56,189,248,.15);
+    border: 1.5px solid var(--v-b2);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  &__spinner {
+    width: 22px; height: 22px;
+    border: 2.5px solid rgba(255,255,255,.18);
+    border-top-color: rgba(255,255,255,.9);
+    border-radius: 50%;
+    animation: vi-spin .75s linear infinite;
+  }
+
+  &:active:not(:disabled) { transform: scale(.93); }
+}

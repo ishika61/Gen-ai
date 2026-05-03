@@ -9,6 +9,7 @@ async function agentChatController(req, res) {
             jobDescription,
             title,
             technicalQuestions,
+            behavioralQuestions,
             skillGaps
         } = req.body;
 
@@ -19,6 +20,7 @@ async function agentChatController(req, res) {
             jobDescription,
             title,
             technicalQuestions,
+            behavioralQuestions,
             skillGaps
         });
 

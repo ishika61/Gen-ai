@@ -183,17 +183,19 @@ async function generateInterViewReportController(req, res) {
         let resumeText = "";
 
         if (req.file && req.file.buffer) {
-            try {
-                const data = await pdfParse(req.file.buffer);
-                resumeText = data?.text || "";
-            } catch (err) {
-                console.log("PDF Parse Error:", err.message);
+            if (req.file.mimetype === "application/pdf") {
+                try {
+                    const data = await pdfParse(req.file.buffer);
+                    resumeText = data?.text || "";
+                } catch (err) {
+                    console.log("PDF Parse Error:", err.message);
+                }
             }
         }
 
         if (!resumeText && !selfDescription) {
             return res.status(400).json({
-                message: "Please provide either a resume or self description."
+                message: "Please provide either a readable PDF resume or a self description."
             });
         }
 

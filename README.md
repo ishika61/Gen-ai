@@ -128,7 +128,7 @@ cd server
 npm install
 ```
 # Frontend
-cd ../client
+cd client
 ```
 npm install
 ```

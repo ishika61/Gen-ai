@@ -152,7 +152,5 @@ npm start
 Screenshot
 <img width="1920" height="878" alt="GEN AI 1" src="https://github.com/user-attachments/assets/2988f637-0b89-4b6a-9254-fa0bf8589298" />
 <img width="1920" height="878" alt="GEN AI 2" src="https://github.com/user-attachments/assets/ea6eb50e-92a2-4c97-8281-d10e4b412293" />
-<img width="1920" height="878" alt="GEN AI 5" src="https://github.com/user-attachments/assets/0dd26488-74fc-49d9-9091-b58b4a69d7c9" />
-<img width="1920" height="1431" alt="GEN AI 4" src="https://github.com/user-attachments/assets/c73dca09-832c-4768-939f-2c005f71595a" />
 <img width="1920" height="1700" alt="GEN AI 3" src="https://github.com/user-attachments/assets/6bf02f27-c6eb-437c-af22-736eb5ba9123" />
-
+<img width="1920" height="878" alt="GEN AI 5" src="https://github.com/user-attachments/assets/0dd26488-74fc-49d9-9091-b58b4a69d7c9" />

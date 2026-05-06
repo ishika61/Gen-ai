@@ -136,6 +136,7 @@ Create .env file in backend:
 ```
 MONGO_URI=your_mongodb_uri
 JWT_SECRET=your_secret_key
+
 OPENAI_API_KEY=your_openai_key
 ```
 
@@ -148,12 +149,10 @@ npm run dev
 ```
 npm start
 ```
-<img width="1892" height="879" alt="Screenshot 2026-03-28 232927" src="https://github.com/user-attachments/assets/2fcf77ae-983e-40a8-afa9-9b612153930e" />
-<img width="1898" height="886" alt="Screenshot 2026-03-28 232910" src="https://github.com/user-attachments/assets/bf2bfc6a-d192-4ccf-8311-f26bab05d2ec" />
+Screenshot
+<img width="1920" height="878" alt="GEN AI 1" src="https://github.com/user-attachments/assets/2988f637-0b89-4b6a-9254-fa0bf8589298" />
+<img width="1920" height="878" alt="GEN AI 2" src="https://github.com/user-attachments/assets/ea6eb50e-92a2-4c97-8281-d10e4b412293" />
+<img width="1920" height="878" alt="GEN AI 5" src="https://github.com/user-attachments/assets/0dd26488-74fc-49d9-9091-b58b4a69d7c9" />
+<img width="1920" height="1431" alt="GEN AI 4" src="https://github.com/user-attachments/assets/c73dca09-832c-4768-939f-2c005f71595a" />
+<img width="1920" height="1700" alt="GEN AI 3" src="https://github.com/user-attachments/assets/6bf02f27-c6eb-437c-af22-736eb5ba9123" />
 
-
-<img width="1882" height="875" alt="Screenshot 2026-03-28 232846" src="https://github.com/user-attachments/assets/1b8f289c-dc85-4bbd-aa2c-b892079355c7" />
-
-
-
-<img width="1904" height="903" alt="Screenshot 2026-03-29 161430" src="https://github.com/user-attachments/assets/fb8005a1-9ee9-4f60-bd01-f51264bb3cea" />

@@ -10,14 +10,17 @@ A full-stack AI-powered web application designed to help users prepare for jobs 
 
 This platform allows users to upload their **resume** and **target job description**, after which it:
 
-- Calculates a **match score**
+
+- Resume & Job Description **Match Score Analysis**
 - Identifies **skill gaps**
 - Generates **technical + behavioral interview questions**
 - Provides a **personalized roadmap**
-- Simulates **HR interview using AI agent (including voice interaction)**
+- **HR interview using AI agent (including voice interaction)**
 - Generates an **ATS-friendly resume (downloadable PDF)**
-
----
+- Resume Parsing & Skill Extraction
+- Dynamic PDF Generation using Puppeteer
+- Secure **JWT Authentication with Token Blacklisting**
+- Real-time communication using WebSockets
 
 ## ✨ Features
 

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import axios from "axios";
+import { io } from "socket.io-client";
 import { useLocation, useNavigate } from "react-router";
 import "../style/voice-interview.scss";
 
@@ -13,9 +13,13 @@ export default function VoiceInterview() {
     const [listening, setListening] = useState(false);
     const [loading,   setLoading]   = useState(false);
     const [error,     setError]     = useState("");
+    const [socketConnected, setSocketConnected] = useState(false);
 
     const recognitionRef = useRef(null);
     const messagesEndRef = useRef(null);
+    const socketRef = useRef(null);
+    const messagesRef = useRef([]);
+    const hasStartedInterviewRef = useRef(false);
 
     // ── interviewContext — field names UNCHANGED ───────────────────────────────
     const interviewContext = useMemo(() => ({
@@ -31,6 +35,7 @@ export default function VoiceInterview() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
     useEffect(() => { scrollToBottom(); }, [messages]);
+    useEffect(() => { messagesRef.current = messages; }, [messages]);
 
     // ── speech recognition setup — UNCHANGED ──────────────────────────────────
     useEffect(() => {
@@ -58,7 +63,6 @@ export default function VoiceInterview() {
         };
 
         recognitionRef.current = recognition;
-        startInterview();
 
         return () => {
             recognition.stop();
@@ -66,8 +70,62 @@ export default function VoiceInterview() {
         };
     }, []);
 
+    useEffect(() => {
+        const socket = io("http://localhost:3000", {
+            withCredentials: true
+        });
+
+        socketRef.current = socket;
+
+        const handleConnect = () => {
+            setSocketConnected(true);
+            setError("");
+        };
+
+        const handleReceiveMessage = (reply) => {
+            setMessages((prev) => {
+                const nextMessages = [...prev, { sender: "AI", text: reply }];
+                messagesRef.current = nextMessages;
+                return nextMessages;
+            });
+            setLoading(false);
+            speak(reply);
+        };
+
+        const handleDisconnect = () => {
+            setSocketConnected(false);
+            setLoading(false);
+            setError("Connection lost. Trying to reconnect...");
+        };
+
+        const handleConnectError = () => {
+            setLoading(false);
+            setError("Unable to connect to realtime interview service.");
+        };
+
+        socket.on("connect", handleConnect);
+        socket.on("receive_message", handleReceiveMessage);
+        socket.on("disconnect", handleDisconnect);
+        socket.on("connect_error", handleConnectError);
+
+        return () => {
+            // Prevent duplicate listeners and cleanly close socket on unmount.
+            socket.off("connect", handleConnect);
+            socket.off("receive_message", handleReceiveMessage);
+            socket.off("disconnect", handleDisconnect);
+            socket.off("connect_error", handleConnectError);
+            socket.disconnect();
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!socketConnected || hasStartedInterviewRef.current) return;
+        hasStartedInterviewRef.current = true;
+        startInterview();
+    }, [socketConnected]);
+
     // ── speak — UNCHANGED ─────────────────────────────────────────────────────
-    const speak = (text) => {
+    function speak(text) {
         window.speechSynthesis.cancel();
         const speech   = new SpeechSynthesisUtterance(text);
         speech.lang    = "en-US";
@@ -81,49 +139,44 @@ export default function VoiceInterview() {
             voices[0];
         if (femaleVoice) speech.voice = femaleVoice;
         window.speechSynthesis.speak(speech);
-    };
+    }
 
-    // ── startInterview — axios URL + body UNCHANGED ───────────────────────────
-    const startInterview = async () => {
-        setLoading(true);
-        setError("");
-        try {
-            const response = await axios.post("http://localhost:3000/api/agent/chat", {
-                message: "", history: "", ...interviewContext
-            });
-            const aiReply = response.data.reply;
-            setMessages([{ sender: "AI", text: aiReply }]);
-            speak(aiReply);
-        } catch (err) {
-            console.log(err);
-            setError("AI interview could not start. Please check backend terminal.");
-        } finally {
+    function emitInterviewMessage({ message, history }) {
+        if (!socketRef.current || !socketRef.current.connected) {
             setLoading(false);
+            setError("Realtime connection unavailable. Please try again.");
+            return;
         }
-    };
 
-    // ── sendMessage — axios URL + body UNCHANGED ──────────────────────────────
-    const sendMessage = async (userText) => {
+        // Emit interview payload over socket to keep existing backend agent input shape.
+        socketRef.current.emit("send_message", {
+            message,
+            history,
+            ...interviewContext
+        });
+    }
+
+    // ── startInterview — now uses Socket.IO realtime messaging ─────────────────
+    async function startInterview() {
+        setMessages([]);
+        messagesRef.current = [];
         setLoading(true);
         setError("");
-        const updatedMessages = [...messages, { sender: "You", text: userText }];
+        emitInterviewMessage({ message: "", history: "" });
+    }
+
+    // ── sendMessage — now uses Socket.IO realtime messaging ────────────────────
+    async function sendMessage(userText) {
+        setLoading(true);
+        setError("");
+        const updatedMessages = [...messagesRef.current, { sender: "You", text: userText }];
+        messagesRef.current = updatedMessages;
         setMessages(updatedMessages);
-        try {
-            const response = await axios.post("http://localhost:3000/api/agent/chat", {
-                message: userText,
-                history: updatedMessages.map(m => `${m.sender}: ${m.text}`).join("\n"),
-                ...interviewContext
-            });
-            const aiReply = response.data.reply;
-            setMessages([...updatedMessages, { sender: "AI", text: aiReply }]);
-            speak(aiReply);
-        } catch (err) {
-            console.log(err);
-            setError("AI service error. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
+        emitInterviewMessage({
+            message: userText,
+            history: updatedMessages.map(m => `${m.sender}: ${m.text}`).join("\n")
+        });
+    }
 
     // ── startListening — UNCHANGED ────────────────────────────────────────────
     const startListening = () => {

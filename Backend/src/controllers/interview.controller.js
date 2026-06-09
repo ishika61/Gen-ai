@@ -166,9 +166,44 @@
 
 
 
+
+
+
+
+
+
+
+
+
 const pdfParse = require("pdf-parse").default || require("pdf-parse");
 const { generateInterviewReport, generateResumePdf } = require("../services/ai.service");
 const interviewReportModel = require("../models/interviewReport.model");
+
+async function parseResumePdfSafely(file) {
+    if (!file || !file.buffer || file.mimetype !== "application/pdf") {
+        return "";
+    }
+
+    const originalWarn = console.warn;
+
+    try {
+        console.warn = (...args) => {
+            const message = args.join(" ");
+            if (message.includes("Warning: TT: undefined function")) {
+                return;
+            }
+            originalWarn(...args);
+        };
+
+        const data = await pdfParse(file.buffer);
+        return data?.text || "";
+    } catch (error) {
+        console.log("PDF Parse Error:", error.message);
+        return "";
+    } finally {
+        console.warn = originalWarn;
+    }
+}
 
 async function generateInterViewReportController(req, res) {
     try {
@@ -180,18 +215,7 @@ async function generateInterViewReportController(req, res) {
             });
         }
 
-        let resumeText = "";
-
-        if (req.file && req.file.buffer) {
-            if (req.file.mimetype === "application/pdf") {
-                try {
-                    const data = await pdfParse(req.file.buffer);
-                    resumeText = data?.text || "";
-                } catch (err) {
-                    console.log("PDF Parse Error:", err.message);
-                }
-            }
-        }
+        const resumeText = await parseResumePdfSafely(req.file);
 
         if (!resumeText && !selfDescription) {
             return res.status(400).json({
@@ -212,6 +236,7 @@ async function generateInterViewReportController(req, res) {
             jobDescription,
             title: interViewReportByAi.title,
             matchScore: interViewReportByAi.matchScore,
+            score: interViewReportByAi.matchScore,
             technicalQuestions: interViewReportByAi.technicalQuestions,
             behavioralQuestions: interViewReportByAi.behavioralQuestions,
             skillGaps: interViewReportByAi.skillGaps,
@@ -253,7 +278,10 @@ async function getInterviewReportByIdController(req, res) {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Error fetching report" });
+
+        res.status(500).json({
+            message: "Error fetching report"
+        });
     }
 }
 
@@ -270,7 +298,10 @@ async function getAllInterviewReportsController(req, res) {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Error fetching reports" });
+
+        res.status(500).json({
+            message: "Error fetching reports"
+        });
     }
 }
 
@@ -304,8 +335,11 @@ async function generateResumePdfController(req, res) {
 
         res.send(pdfBuffer);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error generating PDF" });
+        console.error("Resume PDF Controller Error:", error);
+
+        res.status(500).json({
+            message: "Error generating PDF"
+        });
     }
 }
 

@@ -1974,3 +1974,81 @@
 
   &:active:not(:disabled) { transform: scale(.93); }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.vi-report-btn {
+    appearance: none;
+    border: 1px solid rgba(34, 211, 238, 0.45);
+    outline: none;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    background:
+        linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(99, 102, 241, 0.16)),
+        rgba(18, 16, 42, 0.95);
+    color: #67e8f9;
+    font-family: var(--v-font-b, "DM Sans", system-ui, sans-serif);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow:
+        0 0 0 1px rgba(34, 211, 238, 0.08) inset,
+        0 12px 34px rgba(34, 211, 238, 0.16);
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.vi-report-btn::before {
+    // content: "↗";
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+.vi-report-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(34, 211, 238, 0.75);
+    background:
+        linear-gradient(135deg, rgba(34, 211, 238, 0.28), rgba(99, 102, 241, 0.22)),
+        rgba(18, 16, 42, 0.98);
+    box-shadow:
+        0 0 0 1px rgba(34, 211, 238, 0.14) inset,
+        0 16px 42px rgba(34, 211, 238, 0.22);
+}
+
+.vi-report-btn:active {
+    transform: scale(0.98);
+}

@@ -2205,7 +2205,7 @@
 // 3-column layout (left nav | center questions | right score+gaps),
 // cyan-numbered question cards, SVG arc score ring.
 
-// hide scrollbars globally on this page
+hide scrollbars globally on this page
 .iv-page *::-webkit-scrollbar { display: none; }
 
 // ── Loading ───────────────────────────────────────────────────────────────────
@@ -3685,12 +3685,12 @@
 
 /* Fix right card cut + match reference width */
 .iv-hero {
-  padding: 2.4rem 3rem 2.25rem !important;
+  padding: 2.4rem 0 2.25rem !important;
 }
 
 .iv-hero__inner,
 .iv-body {
-  width: min(1540px, calc(100vw - 6rem)) !important;
+  width: 100% !important;
 }
 
 .iv-hero__title {
@@ -3864,4 +3864,172 @@
 
 .iv-skill {
   font-size: 0.78rem !important;
+}
+
+/* Personalized input context + 3-column alignment fix */
+.iv-hero__inner.iv-page__inner {
+  width: min(1540px, calc(100vw - 6rem)) !important;
+  margin-inline: auto !important;
+  max-width: none !important;
+}
+
+.iv-page__inner {
+  width: min(1540px, calc(100vw - 6rem));
+  margin-inline: auto;
+}
+
+.iv-context {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 0.75fr) !important;
+  gap: 0.85rem !important;
+  margin-bottom: 2rem !important;
+}
+
+.iv-context-card {
+  min-width: 0 !important;
+  border: 1px solid rgba(148, 163, 184, 0.13) !important;
+  border-radius: 0.95rem !important;
+  background: rgba(7, 12, 23, 0.76) !important;
+  padding: 1rem !important;
+}
+
+.iv-context-card span {
+  display: block !important;
+  margin-bottom: 0.55rem !important;
+  color: #6f83aa !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+}
+
+.iv-context-card p {
+  margin: 0 !important;
+  color: #c7d2e8 !important;
+  font-size: 0.86rem !important;
+  line-height: 1.55 !important;
+}
+
+.iv-mini-list {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.45rem !important;
+}
+
+.iv-mini-list b {
+  display: inline-flex !important;
+  max-width: 100% !important;
+  border: 1px solid rgba(56, 189, 248, 0.22) !important;
+  border-radius: 999px !important;
+  padding: 0.28rem 0.58rem !important;
+  color: #38d5ff !important;
+  background: rgba(56, 189, 248, 0.07) !important;
+  font-size: 0.72rem !important;
+  line-height: 1.2 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.iv-fit-card {
+  gap: 0.7rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.iv-fit-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  border: 1px solid rgba(148, 163, 184, 0.1) !important;
+  border-radius: 0.75rem !important;
+  padding: 0.65rem 0.75rem !important;
+  background: rgba(255, 255, 255, 0.025) !important;
+}
+
+.iv-fit-row span {
+  color: #91a3c0 !important;
+  font-size: 0.82rem !important;
+}
+
+.iv-fit-row strong {
+  color: #38d5ff !important;
+  font-size: 1.15rem !important;
+}
+
+.iv-fit-card__note {
+  margin: 0.15rem 0 0 !important;
+  color: #91a3c0 !important;
+  font-size: 0.78rem !important;
+  line-height: 1.5 !important;
+}
+
+.iv-body {
+  width: 100% !important;
+  padding: 0 0 3rem !important;
+  display: grid !important;
+  grid-template-columns: 360px minmax(560px, 1fr) 360px !important;
+  gap: 2rem !important;
+  align-items: start !important;
+}
+
+.iv-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-self: stretch !important;
+  min-height: 100% !important;
+  gap: 2rem !important;
+}
+
+.iv-sidebar__actions {
+  border-top: none !important;
+  padding-top: 0 !important;
+  margin-top: auto !important;
+}
+
+.iv-content__header {
+  margin-top: 0 !important;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+}
+
+.iv-right {
+  align-self: start !important;
+}
+
+@media (max-width: 1280px) {
+  .iv-page__inner,
+  .iv-hero__inner {
+    width: min(100%, calc(100vw - 3rem)) !important;
+  }
+
+  .iv-hero {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+
+  .iv-context {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .iv-body {
+    grid-template-columns: 300px minmax(0, 1fr) 320px !important;
+    gap: 1.4rem !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .iv-page__inner,
+  .iv-hero__inner {
+    width: calc(100vw - 2rem) !important;
+  }
+
+  .iv-context {
+    grid-template-columns: 1fr !important;
+  }
+
+  .iv-body {
+    grid-template-columns: 1fr !important;
+  }
 }

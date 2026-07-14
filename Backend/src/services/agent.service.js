@@ -726,8 +726,34 @@ function buildRoleQuestions(roleTrack) {
     ];
 }
 
+function extractProjectLines(text = "", limit = 3) {
+    return String(text || "")
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => /project|built|developed|implemented|created|platform|application|system/i.test(line))
+        .slice(0, limit);
+}
+
+function buildQuickSelfIntro({ title, selfDescription, resume }) {
+    const role = title || "this role";
+    const skills = extractSkills(`${resume || ""} ${selfDescription || ""}`).slice(0, 3);
+    const projects = extractProjectLines(resume, 1);
+    const projectHint = projects[0] || "your recent projects";
+
+    if (selfDescription && selfDescription.length > 20) {
+        return selfDescription.trim();
+    }
+
+    if (skills.length > 0) {
+        return `I am preparing for the ${role} role with experience in ${skills.join(", ")}, especially through ${projectHint}.`;
+    }
+
+    return `I am a motivated candidate targeting the ${role} role with hands-on project experience.`;
+}
+
 function buildQuestionPlan({
     resume,
+    selfDescription,
     jobDescription,
     title,
     technicalQuestions,
@@ -736,40 +762,51 @@ function buildQuestionPlan({
 }) {
     const roleTrack = inferRoleTrack({ title, jobDescription });
     const role = title || "this role";
+    const candidateText = `${resume || ""}\n${selfDescription || ""}`;
 
-    const resumeSkills = extractSkills(resume);
+    const resumeSkills = extractSkills(candidateText);
     const jobSkills = extractSkills(jobDescription);
+    const projects = extractProjectLines(candidateText, 2);
+    const projectRef = projects[0] || "your strongest project";
+
     const gapQuestions = getQuestionList(skillGaps)
         .slice(0, 3)
-        .map((skill) => `How are you improving your ${skill} skills for this role?`);
+        .map((skill) => `The role expects ${skill}. What is your current level, and how are you closing that gap?`);
 
     const providedTechnical = getQuestionList(technicalQuestions);
     const providedBehavioral = getQuestionList(behavioralQuestions);
     const roleQuestions = buildRoleQuestions(roleTrack);
 
     const skillQuestions = resumeSkills.slice(0, 3).map((skill) =>
-        `In your project experience, how have you used ${skill}?`
+        `Your profile mentions ${skill}. Walk me through a real example of how you used it.`
     );
 
     const jobSkillQuestions = jobSkills.slice(0, 3).map((skill) =>
-        `This role mentions ${skill}. Can you explain your practical experience with it?`
+        `This ${role} role requires ${skill}. Where have you applied it, and what trade-offs did you consider?`
+    );
+
+    const projectQuestions = projects.slice(0, 2).map((project) =>
+        `I see ${project.slice(0, 90)} on your profile. Explain your role, architecture, and one challenge you solved.`
     );
 
     const warmups = [
-        "Tell me about yourself.",
-        `Why are you interested in the ${role} role?`,
-        "What project have you worked on recently?"
+        selfDescription
+            ? `Using your background, give me a concise introduction for the ${role} role.`
+            : `Tell me about yourself and why you are a fit for the ${role} role.`,
+        `Why does the ${role} position interest you based on your resume and goals?`,
+        `Which project from your background best proves you are ready for ${role}?`
     ];
 
     const behavioral = uniqueStrings([
         ...providedBehavioral,
-        "Tell me about a challenge you faced in a project and how you solved it.",
-        "Tell me about a time you had to learn something quickly.",
-        "How do you handle feedback or mistakes in your work?"
+        `Tell me about a challenge you faced while working on ${projectRef}.`,
+        `Describe a time you had to learn something quickly for a project related to ${role}.`,
+        `How do you handle feedback or mistakes when building software?`
     ]);
 
     const technical = uniqueStrings([
         ...providedTechnical,
+        ...projectQuestions,
         ...skillQuestions,
         ...jobSkillQuestions,
         ...roleQuestions,
@@ -786,7 +823,7 @@ function buildQuestionPlan({
         });
     });
 
-    technical.slice(0, 4).forEach((question, index) => {
+    technical.slice(0, 5).forEach((question, index) => {
         plan.push({
             type: "technical",
             difficulty: index < 2 ? "medium" : "hard",
@@ -805,7 +842,7 @@ function buildQuestionPlan({
     plan.push({
         type: "closing",
         difficulty: "hard",
-        question: `If selected for the ${role} role, what would you focus on in your first 90 days?`
+        question: `If selected for the ${role} role, what would you deliver in your first 90 days?`
     });
 
     return uniqueStrings(plan.map((item) => item.question)).map((question) => {
@@ -848,6 +885,7 @@ function buildFallbackReply({
     message,
     history,
     resume,
+    selfDescription,
     jobDescription,
     title,
     technicalQuestions,
@@ -856,6 +894,7 @@ function buildFallbackReply({
 }) {
     const plan = buildQuestionPlan({
         resume,
+        selfDescription,
         jobDescription,
         title,
         technicalQuestions,
@@ -867,7 +906,7 @@ function buildFallbackReply({
     const answerCount = countCandidateAnswers(history);
 
     if (!message) {
-        return `Welcome to your mock interview. Let's start simple. ${nextQuestion?.question || "Tell me about yourself."}`;
+        return nextQuestion?.question || "Tell me about yourself and why you fit this role.";
     }
 
     if (!nextQuestion || answerCount >= 8) {
@@ -940,6 +979,7 @@ async function voiceInterviewAgent({
     message,
     history,
     resume,
+    selfDescription,
     jobDescription,
     title,
     technicalQuestions,
@@ -948,6 +988,7 @@ async function voiceInterviewAgent({
 }) {
     const plan = buildQuestionPlan({
         resume,
+        selfDescription,
         jobDescription,
         title,
         technicalQuestions,
@@ -958,8 +999,12 @@ async function voiceInterviewAgent({
     const askedQuestions = getAskedQuestionsFromHistory(history);
     const nextQuestion = findNextQuestion(plan, history);
     const answerCount = countCandidateAnswers(history);
-    const experienceLevel = inferExperienceLevel(resume, title);
+    const experienceLevel = inferExperienceLevel(`${resume || ""} ${selfDescription || ""}`, title);
     const roleTrack = inferRoleTrack({ title, jobDescription });
+    const quickIntro = buildQuickSelfIntro({ title, selfDescription, resume });
+    const candidateSkills = extractSkills(`${resume || ""} ${selfDescription || ""}`);
+    const jobSkills = extractSkills(jobDescription);
+    const gapList = getQuestionList(skillGaps);
 
     if (answerCount >= 8 || !nextQuestion) {
         return "Thanks, that completes the interview. You can now end the session and view your interview report.";
@@ -967,44 +1012,67 @@ async function voiceInterviewAgent({
 
     try {
         const prompt = `
-You are a realistic human-style mock interviewer.
+You are a professional, realistic mock interviewer conducting a live voice interview.
 
-Candidate target role:
+Target role:
 ${title || "Target role"}
 
 Role track:
 ${roleTrack}
 
-Candidate level:
+Candidate experience level:
 ${experienceLevel}
 
-Job description:
+Target job description:
 ${jobDescription || "Not provided"}
 
-Candidate resume/profile:
+Candidate resume:
 ${resume || "Not provided"}
+
+Candidate quick self-description:
+${selfDescription || quickIntro}
+
+Candidate skills from profile:
+${candidateSkills.length > 0 ? candidateSkills.join(", ") : "Not clearly listed"}
+
+Target job skills to probe:
+${jobSkills.length > 0 ? jobSkills.join(", ") : "General software skills"}
+
+Skill gaps to explore:
+${gapList.length > 0 ? gapList.join(", ") : "None listed"}
+
+Prepared technical questions (use these when relevant):
+${getQuestionList(technicalQuestions).map((q, i) => `${i + 1}. ${q}`).join("\n") || "None provided"}
+
+Prepared behavioral questions (use these when relevant):
+${getQuestionList(behavioralQuestions).map((q, i) => `${i + 1}. ${q}`).join("\n") || "None provided"}
+
+Full interview sequence (follow this order, do not repeat):
+${plan.map((item, i) => `${i + 1}. [${item.type} | ${item.difficulty}] ${item.question}`).join("\n")}
+
+Already asked (do NOT repeat or paraphrase closely):
+${askedQuestions.length > 0 ? askedQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n") : "None yet"}
 
 Conversation so far:
 ${history || "No conversation yet."}
 
 Candidate latest answer:
-${message || "Start interview."}
+${message || "Start the interview now."}
 
-Already asked questions:
-${askedQuestions.length > 0 ? askedQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n") : "None"}
-
-Next planned question:
+Next planned question (you MUST ask this exact question after brief feedback):
 [${nextQuestion.type} | ${nextQuestion.difficulty}] ${nextQuestion.question}
 
 Rules:
-- Ask only ONE question.
-- Do not repeat any previous question.
-- At the beginning, keep it short and natural.
-- If candidate answered, give brief realistic feedback in 1 sentence.
-- Then ask the next planned question.
-- Do not write long paragraphs.
-- Do not list multiple questions.
-- Sound like a professional interviewer, not a chatbot.
+- Sound like a real hiring manager, warm but professional.
+- Ask only ONE question per reply.
+- On the first turn: short welcome, then ask the next planned question. No long preamble.
+- After the candidate answers: give 1 sentence of realistic feedback referencing their answer quality, then ask the next planned question verbatim or with minimal natural rewording.
+- Questions must stay tied to the candidate resume, self-description, target job, and skill gaps.
+- Do not ask generic textbook questions if a personalized one is available in the sequence.
+- Do not repeat any question already asked.
+- Keep total reply under 80 words.
+- Do not use bullet points or numbered lists.
+- Do not mention that you are an AI.
 `;
 
         return await callGemini(prompt);
@@ -1015,6 +1083,7 @@ Rules:
             message,
             history,
             resume,
+            selfDescription,
             jobDescription,
             title,
             technicalQuestions,

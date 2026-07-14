@@ -421,7 +421,8 @@ export default function VoiceInterview() {
 
     const interviewContext = useMemo(() => ({
         title: state?.title || "Mock Interview",
-        resume: state?.resume || state?.selfDescription || "Not provided",
+        resume: state?.resume || "Not provided",
+        selfDescription: state?.selfDescription || "",
         jobDescription: state?.jobDescription || "Not provided",
         technicalQuestions: state?.technicalQuestions || [],
         behavioralQuestions: state?.behavioralQuestions || [],
@@ -642,6 +643,7 @@ export default function VoiceInterview() {
             id: createId(),
             title: interviewContext.title,
             resume: interviewContext.resume,
+            selfDescription: state?.selfDescription || interviewContext.selfDescription || "",
             jobDescription: interviewContext.jobDescription,
             technicalQuestions: interviewContext.technicalQuestions,
             behavioralQuestions: interviewContext.behavioralQuestions,

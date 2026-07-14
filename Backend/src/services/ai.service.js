@@ -945,8 +945,9 @@ const SKILL_KEYWORDS = [
     "React.js", "React", "Node.js", "Express.js", "MongoDB", "JavaScript",
     "TypeScript", "HTML", "CSS", "REST APIs", "JWT", "Authentication",
     "Git", "GitHub", "Socket.IO", "WebSocket", "Redux", "Tailwind CSS",
-    "MySQL", "PostgreSQL", "Python", "Java", "DSA", "System Design",
-    "Gemini API", "OpenAI API", "AI", "LLM", "Prompt Engineering"
+    "MySQL", "PostgreSQL", "Python", "Java", "Spring Boot", "Flutter", "Dart",
+    "Django", "Firebase", "GetX", "Riverpod", "Android", "iOS", "DSA",
+    "System Design", "Gemini API", "OpenAI API", "AI", "LLM", "Prompt Engineering"
 ];
 
 function normalizeText(value = "") {
@@ -1076,6 +1077,8 @@ function inferRole(jobDescription = "") {
     const text = normalizeText(jobDescription);
 
     if (text.includes("prompt")) return "Prompt Engineer";
+    if (text.includes("junior") && text.includes("software")) return "Junior Software Developer";
+    if (text.includes("flutter") || text.includes("mobile")) return "Flutter Developer";
     if (text.includes("ai") || text.includes("llm") || text.includes("machine learning")) return "AI Developer";
     if (text.includes("full stack") || text.includes("fullstack") || text.includes("mern")) return "Full Stack Developer";
     if (text.includes("frontend") || text.includes("front end") || text.includes("react")) return "Frontend Developer";
@@ -1128,92 +1131,166 @@ function getSkillGaps({ resume, selfDescription, jobDescription }) {
     ];
 }
 
+function extractRelevantLines(text = "", matcher, limit = 3) {
+    return getLines(text)
+        .filter((line) => matcher.test(line))
+        .map((line) => limitWords(line, 22))
+        .slice(0, limit);
+}
+
+function extractCandidateProfile({ resume, selfDescription, jobDescription }) {
+    const candidateText = `${resume || ""}\n${selfDescription || ""}`;
+    const candidateSkills = extractSkills(candidateText);
+    const jobSkills = extractSkills(jobDescription);
+    const gaps = getSkillGaps({ resume, selfDescription, jobDescription });
+    const projects = extractRelevantLines(candidateText, /project|built|developed|implemented|created|platform|application|app|system/i, 4);
+    const education = extractRelevantLines(candidateText, /b\.?tech|bachelor|master|degree|college|university|institute|engineering/i, 2);
+    const experience = extractRelevantLines(candidateText, /intern|experience|company|worked|remote|freelance|developer/i, 3);
+
+    return {
+        candidateSkills,
+        jobSkills,
+        gaps,
+        projects,
+        education,
+        experience,
+        strongestSkill: candidateSkills[0] || jobSkills[0] || "core programming",
+        roleRequirement: jobSkills[0] || "the target job requirements",
+        projectReference: projects[0] || selfDescription || "your strongest project",
+        weakArea: gaps[0]?.skill || jobSkills.find((skill) => !candidateSkills.map(normalizeText).includes(normalizeText(skill))) || "system design"
+    };
+}
+
+function questionItem(question, intention, answer) {
+    return {
+        question: limitWords(question, 28),
+        intention: limitWords(intention, 28),
+        answer: limitWords(answer, 55)
+    };
+}
+
+function roadmapDay(day, focus, tasks) {
+    return {
+        day,
+        focus: limitWords(focus, 10),
+        tasks: tasks.map((task) => limitWords(task, 18)).slice(0, 3)
+    };
+}
+
 function buildDynamicFallbackReport({ resume, selfDescription, jobDescription }) {
     const title = inferRole(jobDescription);
     const score = calculateMatchScore({ resume, selfDescription, jobDescription });
-    const candidateSkills = extractSkills(`${resume || ""} ${selfDescription || ""}`);
-    const jobSkills = extractSkills(jobDescription);
-    const gaps = getSkillGaps({ resume, selfDescription, jobDescription });
+    const profile = extractCandidateProfile({ resume, selfDescription, jobDescription });
+    const candidateSkills = profile.candidateSkills;
+    const jobSkills = profile.jobSkills;
+    const gaps = profile.gaps;
 
-    const primarySkill = candidateSkills[0] || jobSkills[0] || "your main technology";
-    const secondSkill = candidateSkills[1] || jobSkills[1] || "backend/frontend development";
-    const thirdSkill = candidateSkills[2] || jobSkills[2] || "database design";
-    const gapSkill = gaps[0]?.skill || "system design";
+    const primarySkill = profile.strongestSkill;
+    const secondSkill = candidateSkills[1] || jobSkills[1] || "frontend and backend integration";
+    const thirdSkill = jobSkills[2] || candidateSkills[2] || "database design";
+    const gapSkill = profile.weakArea;
+    const projectReference = profile.projectReference;
+    const jobRequirement = profile.roleRequirement;
 
     return {
         matchScore: score,
         title,
         technicalQuestions: [
-            {
-                question: `Tell me about a project where you used ${primarySkill}.`,
-                intention: "To check real project experience and technical ownership.",
-                answer: `Explain the project goal, your role, how you used ${primarySkill}, the main challenge, and the final outcome.`
-            },
-            {
-                question: `How would you design authentication for a ${title} project?`,
-                intention: "To evaluate backend security and practical implementation thinking.",
-                answer: "Explain signup/login, password hashing, JWT or sessions, protected routes, validation, and secure error handling."
-            },
-            {
-                question: `How do you connect frontend and backend in a production application?`,
-                intention: "To test full-stack API communication understanding.",
-                answer: "Discuss REST APIs, request/response flow, auth headers, validation, error handling, loading states, and database updates."
-            },
-            {
-                question: `What problems have you faced while working with ${secondSkill}, and how did you solve them?`,
-                intention: "To evaluate debugging and problem-solving skill.",
-                answer: "Give a specific issue, how you investigated it, the fix you applied, and what you learned."
-            },
-            {
-                question: `This job requires ${thirdSkill}. How strong are you in it, and where have you used it?`,
-                intention: "To compare job requirements with candidate experience.",
-                answer: "Explain your practical experience, project usage, limitations, and how you are improving."
-            }
+            questionItem(
+                `Your resume mentions ${projectReference}. Walk me through its architecture and your exact contribution.`,
+                "To verify project ownership, system understanding, and whether the resume experience is practical.",
+                `Start with the problem, then explain frontend, backend, database, APIs, your role, one technical challenge, and the result. Mention ${primarySkill} only if you actually used it.`
+            ),
+            questionItem(
+                `The target job emphasizes ${jobRequirement}. Where have you used it, and what would you improve now?`,
+                "To compare target-job requirements with the candidate's real experience depth.",
+                `Give a concrete example from resume or self-description, explain implementation choices, limitations, and one improvement plan.`
+            ),
+            questionItem(
+                `How would you design authentication and protected routes for a ${title} application?`,
+                "To evaluate backend security, API design, and production readiness.",
+                "Explain password hashing, login flow, JWT/session storage, middleware, protected frontend routes, validation, expiry, and safe error handling."
+            ),
+            questionItem(
+                `If ${secondSkill} failed in production, how would you debug it step by step?`,
+                "To test practical troubleshooting, logs, root-cause analysis, and verification habits.",
+                "Explain reproduction, checking logs/network/database, isolating frontend vs backend, fixing root cause, writing tests, and monitoring after deployment."
+            ),
+            questionItem(
+                `This role needs ${gapSkill}. What do you know today, and how will you close the gap quickly?`,
+                "To assess honesty, learning plan, and readiness for the weakest role requirement.",
+                `State your current level, connect any related experience, name what is missing, then give a 1-2 week practice plan for ${gapSkill}.`
+            ),
+            questionItem(
+                `How do you structure REST APIs in ${primarySkill} and ${secondSkill} for a production ${title} app?`,
+                "To test API design, validation, error handling, and backend architecture thinking.",
+                "Explain routes, controllers, middleware, validation, auth, status codes, and one example endpoint from your project."
+            ),
+            questionItem(
+                `How would you optimize performance in a React + Node application like ${projectReference}?`,
+                "To evaluate real-world performance, caching, and scaling awareness.",
+                "Cover frontend rendering, API latency, database queries, indexing, lazy loading, and one bottleneck you would fix first."
+            ),
+            questionItem(
+                `Explain how you would deploy and monitor a ${title} project in production.`,
+                "To check deployment readiness, environment handling, and basic DevOps awareness.",
+                "Mention build steps, env variables, hosting, logging, error tracking, and how you would verify a release."
+            )
         ],
         behavioralQuestions: [
-            {
-                question: "Tell me about yourself.",
-                intention: "To evaluate communication, confidence, and role fit.",
-                answer: `Give a short summary of your education, skills, projects, and why you fit the ${title} role.`
-            },
-            {
-                question: "Describe a challenging project situation and how you handled it.",
-                intention: "To evaluate ownership and problem-solving behavior.",
-                answer: "Use STAR format: situation, task, action, result. Keep it specific and outcome-focused."
-            },
-            {
-                question: "Why are you interested in this role?",
-                intention: "To check motivation and alignment with the job.",
-                answer: "Connect the role requirements with your skills, projects, and learning goals."
-            }
+            questionItem(
+                `Give me a 45-second introduction for the ${title} role using your resume and self-description.`,
+                "To check communication, confidence, and whether the candidate can position their profile clearly.",
+                `Mention education/current stage, strongest skills, one project, target role motivation, and the specific value you can bring.`
+            ),
+            questionItem(
+                `Tell me about a time you were stuck while building ${projectReference}. What did you do?`,
+                "To evaluate ownership, problem-solving behavior, and resilience from a real candidate context.",
+                "Use STAR: situation, task, action, result. Include the blocker, your debugging steps, help you used, and the final learning."
+            ),
+            questionItem(
+                `Why should this company choose you for ${title} despite your current gaps in ${gapSkill}?`,
+                "To test self-awareness, motivation, and ability to turn gaps into a credible growth plan.",
+                `Acknowledge the gap honestly, show matching strengths from resume, explain learning speed, and give a concrete preparation plan.`
+            ),
+            questionItem(
+                `Describe a time you worked under pressure to deliver a feature using ${primarySkill}.`,
+                "To test deadline handling, prioritization, and teamwork under pressure.",
+                "Use STAR with the deadline, your task, how you prioritized, what you shipped, and the outcome."
+            ),
+            questionItem(
+                `How do you handle critical feedback on your code or project work?`,
+                "To assess coachability, growth mindset, and professional maturity.",
+                "Share a real feedback moment, what you changed, and how it improved the final output."
+            )
         ],
         skillGaps: gaps,
         preparationPlan: [
-            {
-                day: 1,
-                focus: "Resume and job alignment",
-                tasks: ["Review target job keywords", "Prepare a strong introduction", "Map your projects to the role"]
-            },
-            {
-                day: 2,
-                focus: `${primarySkill} revision`,
-                tasks: ["Revise fundamentals", "Prepare project examples", "Practice explaining trade-offs"]
-            },
-            {
-                day: 3,
-                focus: "API and backend fundamentals",
-                tasks: ["Revise REST APIs", "Practice authentication flow", "Review database CRUD and validation"]
-            },
-            {
-                day: 4,
-                focus: `${gapSkill} improvement`,
-                tasks: [`Study ${gapSkill} basics`, "Build one small practice feature", "Prepare interview explanation"]
-            },
-            {
-                day: 5,
-                focus: "Mock interview practice",
-                tasks: ["Practice technical questions", "Practice HR answers", "Record and improve communication"]
-            }
+            roadmapDay(1, "Profile and job alignment", [
+                `Extract top requirements from the ${title} job description`,
+                `Map ${projectReference} to those requirements`,
+                "Prepare a 45-second self introduction"
+            ]),
+            roadmapDay(2, `${primarySkill} interview depth`, [
+                `Revise ${primarySkill} fundamentals`,
+                `Prepare one project story using ${primarySkill}`,
+                "Practice explaining trade-offs and mistakes"
+            ]),
+            roadmapDay(3, "Full-stack implementation proof", [
+                "Draw frontend-backend-database flow for your main project",
+                "Practice REST API, auth, validation, and error handling explanations",
+                "Prepare one production debugging example"
+            ]),
+            roadmapDay(4, `${gapSkill} gap closing`, [
+                `Study the basics of ${gapSkill}`,
+                `Build one tiny demo or note set for ${gapSkill}`,
+                "Prepare an honest gap explanation with learning plan"
+            ]),
+            roadmapDay(5, "Mock interview and refinement", [
+                "Answer all technical questions out loud",
+                "Record behavioral answers and improve structure",
+                "Revise weak answers using feedback"
+            ])
         ]
     };
 }
@@ -1315,9 +1392,10 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 
     try {
         const prompt = `
-You are an expert technical recruiter.
+You are an expert technical recruiter and interview coach.
 
-Generate a unique interview preparation report for this exact candidate and job.
+Generate a unique interview preparation report for this exact candidate and target job.
+Use the uploaded resume as the main source of truth, then use the self-description to fill context, and compare both against the target job description.
 
 Return ONLY valid JSON:
 {
@@ -1354,14 +1432,24 @@ Return ONLY valid JSON:
 
 Rules:
 - Do not return generic repeated questions.
-- Questions must be based on candidate resume, projects, skills, target job, and missing skills.
+- Treat the self-description as the candidate's quick profile summary. Use it for intro-style behavioral questions and role-fit answers.
+- Every technical question must reference at least one of: a resume project, a candidate skill from resume/self-description, a target-job requirement, or a detected skill gap.
+- Every behavioral question must be answerable from the candidate resume/self-description and must test role fit, ownership, communication, motivation, or learning ability.
+- The preparationPlan must directly address the detected skillGaps and target job requirements.
+- Model answers must mention what evidence the candidate should pull from their own resume, projects, or self-description.
+- skillGaps must be skills required by the target job but missing, weak, or not clearly proven in resume/self-description.
+- Do not list a skill gap if the resume strongly proves that skill.
+- Model answers must be tailored to this candidate. Mention what kind of evidence they should use from their resume/projects.
 - matchScore must be realistic based on skill overlap, project relevance, and experience depth.
 - If candidate is weak for this job, score should be low.
 - If candidate strongly matches this job, score should be high.
-- Give at least 5 technical questions.
-- Give at least 3 behavioral questions.
+- Give exactly 8 technical questions.
+- Give exactly 5 behavioral questions.
 - Give at least 5 preparation days.
 - severity must be one of: low, medium, high.
+- Keep each question specific and interview-ready.
+- Keep each intention under 25 words.
+- Keep each model answer under 55 words.
 
 Candidate Resume:
 ${resume || "Not provided"}
@@ -1383,93 +1471,173 @@ ${jobDescription || "Not provided"}
     }
 }
 
+function orderSkillsForAts({ resume, selfDescription, jobDescription }) {
+    const jobSkills = extractSkills(jobDescription);
+    const candidateSkills = extractSkills(`${resume || ""} ${selfDescription || ""}`);
+    const combined = unique([...jobSkills, ...candidateSkills]);
+
+    return combined.length > 0
+        ? combined.slice(0, 18)
+        : ["React.js", "Node.js", "Express.js", "MongoDB", "JavaScript", "REST APIs", "Git", "GitHub"];
+}
+
+function buildTailoredAtsSummary({ resume, selfDescription, jobDescription }) {
+    const role = inferRole(jobDescription);
+    const skills = orderSkillsForAts({ resume, selfDescription, jobDescription });
+    const jobKeywords = extractSkills(jobDescription).slice(0, 4).join(", ");
+    const stack = skills.slice(0, 6).join(", ");
+
+    if (selfDescription && selfDescription.length > 30) {
+        const trimmed = limitWords(selfDescription, 42);
+        const keywordTail = jobKeywords ? ` Targeting ${role} with strengths in ${jobKeywords}.` : "";
+        return limitWords(`${trimmed}${keywordTail}`, 48);
+    }
+
+    return limitWords(
+        `Results-driven ${role} with hands-on experience in ${stack}. Built full-stack web applications with REST APIs, authentication, databases, and responsive UI. Motivated to deliver scalable, ATS-aligned solutions for ${role} roles requiring ${jobKeywords || "modern web development"}.`,
+        48
+    );
+}
+
+function extractResumeProjects(resume = "") {
+    return getLines(resume)
+        .filter((line) => /project|platform|application|built|developed/i.test(line))
+        .slice(0, 3)
+        .map((line, index) => ({
+            name: limitWords(line.split(/[:\-–]/)[0] || `Project ${index + 1}`, 8),
+            tech: extractSkills(line).slice(0, 5).join(", ") || "React.js, Node.js, MongoDB",
+            points: [limitWords(line, 24)]
+        }));
+}
+
+function extractResumeExperience(resume = "") {
+    const lines = getLines(resume);
+    const experiences = [];
+
+    lines.forEach((line, index) => {
+        if (!/pvt|ltd|llc|inc|infosystems|hangout|solopackers|gravit|hub/i.test(line)) return;
+        if (line.length > 95) return;
+
+        const company = line.split("|")[0].trim();
+        const meta = line.includes("|") ? line.split("|").slice(1).join("|").trim() : "";
+        const nextLines = lines.slice(index + 1, index + 6);
+        const roleLine = nextLines.find((item) => /developer|intern|engineer/i.test(item)) || "Developer";
+        const bullets = nextLines
+            .filter((item) => item.length > 20 && !/tech stack|developer|intern/i.test(item))
+            .slice(0, 4)
+            .map((item) => limitWords(item, 28));
+        const techLine = nextLines.find((item) => /tech stack|flutter|dart|java|react|node|api/i.test(item));
+
+        experiences.push({
+            company,
+            role: limitWords(roleLine, 12),
+            location: meta || "Remote",
+            duration: meta.match(/\d{4}\s*[-–]\s*(\w+|\d{4})/i)?.[0] || meta || "See resume",
+            techStack: techLine ? techLine.replace(/^tech stack:\s*/i, "") : extractSkills(nextLines.join(" ")).join(", "),
+            points: bullets.length > 0 ? bullets : [limitWords(roleLine, 28)]
+        });
+    });
+
+    return experiences.length > 0 ? experiences : null;
+}
+
+function extractResumeEducation(resume = "") {
+    const lines = getLines(resume);
+    const instituteLine = lines.find((line) =>
+        /institute|university|college|technology|science/i.test(line)
+    );
+    const degreeLine = lines.find((line) =>
+        /b\.?tech|bachelor|master|engineering|electronics|communication|computer/i.test(line)
+    );
+    const durationLine = lines.find((line) =>
+        /\d{4}\s*[-–]\s*(present|\d{4})/i.test(line)
+    );
+
+    if (!instituteLine && !degreeLine) return [];
+
+    return [{
+        institute: instituteLine || "Institute Name",
+        degree: degreeLine || "B.Tech",
+        location: instituteLine?.includes(",") ? instituteLine.split(",").slice(1).join(",").trim() : "India",
+        duration: durationLine || "2022 - Present"
+    }];
+}
+
+function extractResumeAchievements(resume = "") {
+    return getLines(resume)
+        .filter((line) =>
+            /winner|achieved|star|certificate|merit|rank|hackathon|codethon|competition/i.test(line)
+        )
+        .slice(0, 6)
+        .map((line) => limitWords(line, 22));
+}
+
+function buildSkillCategories(skills = []) {
+    const categories = [
+        { category: "Programming Languages", items: [] },
+        { category: "Frameworks", items: [] },
+        { category: "Databases & APIs", items: [] },
+        { category: "Tools & Platforms", items: [] }
+    ];
+
+    skills.forEach((skill) => {
+        const key = normalizeText(skill);
+        if (/java|python|dart|javascript|typescript|c\+\+|go/.test(key)) categories[0].items.push(skill);
+        else if (/flutter|react|node|express|spring|django|next/.test(key)) categories[1].items.push(skill);
+        else if (/mongo|sql|postgres|firebase|rest|api|jwt/.test(key)) categories[2].items.push(skill);
+        else categories[3].items.push(skill);
+    });
+
+    return categories.filter((item) => item.items.length > 0);
+}
+
 function buildFallbackResumeData({ resume, selfDescription, jobDescription }) {
     const name = extractName(resume);
-    const email = extractEmail(resume) || "ishikasavita946@gmail.com";
-    const phone = extractPhone(resume) || "+91 9131314683";
+    const email = extractEmail(resume);
+    const phone = extractPhone(resume);
     const role = inferRole(jobDescription);
-    const skills = extractSkills(`${resume || ""} ${selfDescription || ""} ${jobDescription || ""}`);
+    const finalSkills = orderSkillsForAts({ resume, selfDescription, jobDescription });
+    const parsedProjects = extractResumeProjects(resume);
+    const parsedExperience = extractResumeExperience(resume);
+    const parsedEducation = extractResumeEducation(resume);
+    const achievements = extractResumeAchievements(resume);
 
-    const finalSkills = skills.length > 0
-        ? skills.slice(0, 16)
-        : ["React.js", "Node.js", "Express.js", "MongoDB", "JavaScript", "HTML", "CSS", "REST APIs", "Git", "GitHub"];
+    const contactParts = [phone, email, "LinkedIn", "GitHub"].filter(Boolean);
 
     return {
         name,
-        contact: `${phone} | ${email} | LinkedIn | GitHub | Portfolio`,
-        summary:
-            selfDescription ||
-            `${role} with hands-on experience in ${finalSkills.slice(0, 5).join(", ")}. Skilled in building responsive web applications, REST APIs, authentication flows, and database-driven features. Strong learner with practical project experience and interest in building scalable software solutions.`,
-        skills: finalSkills,
-        experience: [
-            {
-                role: "Full Stack Developer Intern",
-                company: "iNeuron Intelligence Pvt. Ltd.",
-                location: "Remote",
-                duration: "May 2025 - July 2025",
-                points: [
-                    "Developed full-stack web application features using React.js, Node.js, Express.js, and MongoDB.",
-                    "Implemented REST APIs for authentication, data management, and backend business logic.",
-                    "Built responsive user interfaces and improved frontend-backend communication."
-                ]
-            }
-        ],
-        projects: [
-            {
-                name: "AI Interview Preparation Platform",
-                tech: "React.js, Node.js, MongoDB, Gemini API",
-                points: [
-                    "Built an AI-powered platform that generates interview questions, skill gaps, and preparation plans.",
-                    "Integrated resume parsing, authentication, report generation, and mock interview functionality.",
-                    "Implemented full-stack features including user flow, API communication, and dynamic report generation."
-                ]
-            }
-        ],
-        education: [
-            {
-                degree: "B.Tech in Electrical Engineering",
-                institute: "Madhav Institute of Technology and Science",
-                location: "Gwalior, India",
-                duration: "2022 - Present"
-            }
-        ]
+        contact: contactParts.join(" | "),
+        education: parsedEducation.length > 0 ? parsedEducation : [{
+            institute: "Madhav Institute of Technology and Science, Gwalior, India",
+            degree: "B.Tech",
+            location: "Gwalior, India",
+            duration: "2022 - Present"
+        }],
+        experience: parsedExperience || [],
+        projects: parsedProjects,
+        skillCategories: buildSkillCategories(finalSkills),
+        achievements
     };
 }
 
 function normalizeResumeData(data = {}, input = {}) {
     const fallback = buildFallbackResumeData(input);
+    const orderedSkills = orderSkillsForAts(input);
+    const mergedSkills = unique([
+        ...orderedSkills,
+        ...toArray(data.skills).map(cleanText)
+    ]).slice(0, 20);
+
+    const skillCategories = toArray(data.skillCategories).length > 0
+        ? toArray(data.skillCategories).map((item) => ({
+            category: cleanText(item.category),
+            items: toArray(item.items).map(cleanText).slice(0, 10)
+        })).filter((item) => item.category && item.items.length > 0)
+        : buildSkillCategories(mergedSkills);
 
     return {
         name: cleanText(data.name) || fallback.name,
         contact: cleanText(data.contact) || fallback.contact,
-        summary: limitWords(data.summary || fallback.summary, 65),
-
-        skills: unique([
-            ...toArray(data.skills).map(cleanText),
-            ...fallback.skills
-        ]).slice(0, 18),
-
-        experience: (
-            toArray(data.experience).length > 0
-                ? toArray(data.experience)
-                : fallback.experience
-        ).slice(0, 3).map((item) => ({
-            role: cleanText(item.role),
-            company: cleanText(item.company),
-            location: cleanText(item.location),
-            duration: cleanText(item.duration),
-            points: toArray(item.points).map((point) => limitWords(point, 26)).slice(0, 4)
-        })),
-
-        projects: (
-            toArray(data.projects).length > 0
-                ? toArray(data.projects)
-                : fallback.projects
-        ).slice(0, 3).map((item) => ({
-            name: cleanText(item.name),
-            tech: cleanText(item.tech),
-            points: toArray(item.points).map((point) => limitWords(point, 26)).slice(0, 4)
-        })),
 
         education: (
             toArray(data.education).length > 0
@@ -1480,15 +1648,46 @@ function normalizeResumeData(data = {}, input = {}) {
             institute: cleanText(item.institute),
             location: cleanText(item.location),
             duration: cleanText(item.duration)
-        }))
+        })),
+
+        experience: (
+            toArray(data.experience).length > 0
+                ? toArray(data.experience)
+                : fallback.experience
+        ).slice(0, 4).map((item) => ({
+            role: cleanText(item.role),
+            company: cleanText(item.company),
+            location: cleanText(item.location),
+            duration: cleanText(item.duration),
+            techStack: cleanText(item.techStack || item.tech || ""),
+            points: toArray(item.points).map((point) => limitWords(point, 28)).slice(0, 4)
+        })),
+
+        projects: (
+            toArray(data.projects).length > 0
+                ? toArray(data.projects)
+                : fallback.projects
+        ).slice(0, 4).map((item) => ({
+            name: cleanText(item.name),
+            tech: cleanText(item.tech),
+            points: toArray(item.points).map((point) => limitWords(point, 28)).slice(0, 4)
+        })),
+
+        skillCategories,
+        achievements: (
+            toArray(data.achievements).length > 0
+                ? toArray(data.achievements)
+                : fallback.achievements
+        ).map((item) => limitWords(cleanText(item), 24)).slice(0, 6)
     };
 }
 
 function createAtsResumeHtml(data) {
-    const skills = data.skills || [];
     const experience = data.experience || [];
     const projects = data.projects || [];
     const education = data.education || [];
+    const skillCategories = data.skillCategories || [];
+    const achievements = data.achievements || [];
 
     return `
 <!DOCTYPE html>
@@ -1496,92 +1695,48 @@ function createAtsResumeHtml(data) {
 <head>
     <meta charset="UTF-8" />
     <style>
-        @page {
-            size: A4;
-            margin: 12mm 14mm;
-        }
-
+        @page { size: A4; margin: 12mm 14mm; }
         body {
             margin: 0;
             color: #000;
             background: #fff;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 10pt;
-            line-height: 1.25;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 10.5pt;
+            line-height: 1.28;
         }
-
-        .header {
-            text-align: center;
-            margin-bottom: 9px;
-        }
-
+        .header { text-align: center; margin-bottom: 10px; }
         .name {
             margin: 0 0 4px;
             font-size: 20pt;
             font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.4px;
         }
-
-        .contact {
-            margin: 0;
-            font-size: 8.7pt;
-        }
-
-        .section {
-            margin-top: 8px;
-            page-break-inside: avoid;
-        }
-
+        .contact { margin: 0; font-size: 9pt; }
+        .section { margin-top: 9px; page-break-inside: avoid; }
         .section-title {
-            margin-bottom: 4px;
+            margin: 0 0 4px;
             padding-bottom: 2px;
             border-bottom: 1px solid #000;
-            font-size: 10.5pt;
+            font-size: 11pt;
             font-weight: 700;
             text-transform: uppercase;
         }
-
-        p {
-            margin: 0 0 4px;
-        }
-
-        .item {
-            margin-bottom: 6px;
-            page-break-inside: avoid;
-        }
-
+        .item { margin-bottom: 7px; page-break-inside: avoid; }
         .item-header {
             display: flex;
             justify-content: space-between;
-            gap: 12px;
+            gap: 10px;
             font-weight: 700;
         }
-
-        .item-left {
-            flex: 1;
-        }
-
-        .item-right {
-            white-space: nowrap;
-            text-align: right;
-        }
-
-        .item-sub {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 1px;
-            font-style: italic;
-        }
-
-        ul {
-            margin: 3px 0 0 15px;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 2px;
-        }
+        .item-left { flex: 1; }
+        .item-right { white-space: nowrap; text-align: right; font-weight: 700; }
+        .item-role { margin-top: 1px; font-style: italic; }
+        .tech-stack { margin: 3px 0 0; font-size: 10pt; }
+        ul { margin: 3px 0 0 16px; padding: 0; }
+        li { margin-bottom: 2px; }
+        .skills-list { margin: 0; padding-left: 16px; }
+        .skills-list li { margin-bottom: 2px; }
     </style>
 </head>
 <body>
@@ -1590,63 +1745,71 @@ function createAtsResumeHtml(data) {
         <p class="contact">${escapeHtml(data.contact)}</p>
     </div>
 
+    ${education.length > 0 ? `
     <div class="section">
-        <div class="section-title">Professional Summary</div>
-        <p>${escapeHtml(data.summary)}</p>
-    </div>
+        <div class="section-title">Education</div>
+        ${education.map((item) => `
+            <div class="item">
+                <div class="item-header">
+                    <span class="item-left">${escapeHtml(item.institute)}${item.location ? `, ${escapeHtml(item.location)}` : ""}</span>
+                    <span class="item-right">${escapeHtml(item.duration)}</span>
+                </div>
+                <div>${escapeHtml(item.degree)}</div>
+            </div>
+        `).join("")}
+    </div>` : ""}
 
-    <div class="section">
-        <div class="section-title">Technical Skills</div>
-        <p>${escapeHtml(skills.join(" | "))}</p>
-    </div>
-
+    ${experience.length > 0 ? `
     <div class="section">
         <div class="section-title">Experience</div>
         ${experience.map((item) => `
             <div class="item">
                 <div class="item-header">
-                    <span class="item-left">${escapeHtml(item.role)}</span>
-                    <span class="item-right">${escapeHtml(item.duration)}</span>
+                    <span class="item-left">${escapeHtml(item.company)}</span>
+                    <span class="item-right">${escapeHtml(item.location)}${item.duration ? ` | ${escapeHtml(item.duration)}` : ""}</span>
                 </div>
-                <div class="item-sub">
-                    <span>${escapeHtml(item.company)}</span>
-                    <span>${escapeHtml(item.location)}</span>
-                </div>
+                <div class="item-role">${escapeHtml(item.role)}</div>
                 <ul>
                     ${(item.points || []).map((point) => `<li>${escapeHtml(point)}</li>`).join("")}
                 </ul>
+                ${item.techStack ? `<p class="tech-stack"><strong>Tech Stack:</strong> ${escapeHtml(item.techStack)}</p>` : ""}
             </div>
         `).join("")}
-    </div>
+    </div>` : ""}
 
+    ${projects.length > 0 ? `
     <div class="section">
         <div class="section-title">Projects</div>
         ${projects.map((item) => `
             <div class="item">
                 <div class="item-header">
                     <span class="item-left">${escapeHtml(item.name)}</span>
-                    <span class="item-right">${escapeHtml(item.tech)}</span>
+                    <span class="item-right">${escapeHtml(item.tech || "")}</span>
                 </div>
                 <ul>
                     ${(item.points || []).map((point) => `<li>${escapeHtml(point)}</li>`).join("")}
                 </ul>
             </div>
         `).join("")}
-    </div>
+    </div>` : ""}
 
+    ${skillCategories.length > 0 ? `
     <div class="section">
-        <div class="section-title">Education</div>
-        ${education.map((item) => `
-            <div class="item">
-                <div class="item-header">
-                    <span class="item-left">${escapeHtml(item.degree)}</span>
-                    <span class="item-right">${escapeHtml(item.duration)}</span>
-                </div>
-                <div>${escapeHtml(item.institute)}</div>
-                <div>${escapeHtml(item.location)}</div>
-            </div>
-        `).join("")}
-    </div>
+        <div class="section-title">Technical Skills</div>
+        <ul class="skills-list">
+            ${skillCategories.map((group) => `
+                <li><strong>${escapeHtml(group.category)}:</strong> ${escapeHtml(group.items.join(", "))}</li>
+            `).join("")}
+        </ul>
+    </div>` : ""}
+
+    ${achievements.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Achievements &amp; Certificate</div>
+        <ul>
+            ${achievements.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+        </ul>
+    </div>` : ""}
 </body>
 </html>
 `;
@@ -1692,50 +1855,68 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
     let parsed = null;
 
     try {
+        const targetRole = inferRole(jobDescription);
+
         const prompt = `
 You are an expert ATS resume writer.
 
-Create a clean, one-page ATS-friendly resume tailored to the job.
+Create a one-page ATS resume in this exact professional format:
+1) Centered name and contact
+2) EDUCATION
+3) EXPERIENCE (company, location/dates, role, bullets, Tech Stack line)
+4) PROJECTS
+5) TECHNICAL SKILLS (grouped categories)
+6) ACHIEVEMENTS & CERTIFICATE
 
-Return ONLY valid JSON. No markdown. No explanation.
+Return ONLY valid JSON. No markdown.
 
 {
   "name": "Candidate Name",
-  "contact": "Phone | Email | LinkedIn | GitHub | Portfolio",
-  "summary": "Professional summary maximum 65 words",
-  "skills": ["Skill 1", "Skill 2"],
+  "contact": "Phone | Email | LinkedIn | GitHub | Leetcode",
+  "education": [
+    {
+      "institute": "Institute Name, City, Country",
+      "degree": "B.Tech in ...",
+      "location": "City, Country",
+      "duration": "2022 - Present"
+    }
+  ],
   "experience": [
     {
-      "role": "Role",
-      "company": "Company",
-      "location": "Location",
-      "duration": "Duration",
-      "points": ["Point 1", "Point 2"]
+      "company": "Company Name",
+      "role": "Role Title",
+      "location": "City | Remote",
+      "duration": "Month Year - Month Year",
+      "techStack": "Skill 1, Skill 2, Skill 3",
+      "points": ["Action bullet with impact", "Action bullet with impact"]
     }
   ],
   "projects": [
     {
-      "name": "Project",
+      "name": "Project Name",
       "tech": "Tech stack",
-      "points": ["Point 1", "Point 2"]
+      "points": ["Bullet 1", "Bullet 2"]
     }
   ],
-  "education": [
+  "skillCategories": [
     {
-      "degree": "Degree",
-      "institute": "Institute",
-      "location": "Location",
-      "duration": "Duration"
+      "category": "Programming Languages",
+      "items": ["Java", "Dart"]
     }
-  ]
+  ],
+  "achievements": ["Achievement or certificate line"]
 }
 
 Rules:
-- Use uploaded resume as source of truth.
-- Tailor to target job description.
-- Use ATS keywords naturally.
-- Do not invent fake companies, dates, degrees, or personal details.
-- Keep bullets concise and strong.
+- Use uploaded resume as the only source of truth for companies, projects, dates, degrees, and achievements.
+- Use self-description and target job only to tailor wording and keyword emphasis.
+- Tailor bullets toward target role: ${targetRole}
+- Do not invent fake companies, dates, degrees, emails, or phone numbers.
+- Keep one-column black text ATS format. No tables, icons, or graphics.
+- Bullets must start with strong action verbs and include outcomes when available.
+- Every experience entry must include a techStack line when tools are known from resume.
+- Group technical skills into categories like Programming Languages, Frameworks, Databases & APIs, Tools & Platforms.
+- Preserve all real internships, projects, education, and achievements from the uploaded resume.
 
 Uploaded Resume:
 ${resume || "Not provided"}

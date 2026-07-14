@@ -149,8 +149,25 @@
 .ir-hero-insights strong {
     display: block;
     color: #f4f8ff;
-    font-size: 0.9rem;
-    line-height: 1.45;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.ir-review-block p {
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+}
+
+.ir-review-block--model {
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    background: rgba(56, 189, 248, 0.06);
+    border-radius: 8px;
+    padding: 0.85rem;
+}
+
+.ir-review-block--model strong {
+    color: #38d5ff;
 }
 
 .ir-grid {
@@ -256,8 +273,10 @@
 .ir-summary-grid span {
     display: block;
     color: #7f91b2;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     margin-bottom: 0.4rem;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
 }
 
 .ir-summary-grid strong {
@@ -306,7 +325,15 @@
     font-size: 1.05rem;
 }
 
-.ir-review-card__top span {
+.ir-review-meta {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.45rem;
+}
+
+.ir-review-meta span {
     flex: 0 0 auto;
     color: #38d5ff;
     border: 1px solid rgba(56, 189, 248, 0.25);
@@ -420,5 +447,9 @@
     .ir-review-card__top {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .ir-review-meta {
+        justify-content: flex-start;
     }
 }

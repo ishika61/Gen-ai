@@ -547,12 +547,6 @@ const Interview = () => {
         report.role ||
         'Interview Report'
 
-    const reportSubtitle =
-        report.selfDescription ||
-        report.summary ||
-        report.jobDescription ||
-        'Your personalized interview preparation report.'
-
     const shortReportId =
         report._id || interviewId
             ? String(report._id || interviewId).slice(-6).toUpperCase()
@@ -586,7 +580,7 @@ const Interview = () => {
                 <div className="iv-hero__blob iv-hero__blob--1" />
                 <div className="iv-hero__blob iv-hero__blob--2" />
 
-                <div className="iv-hero__inner">
+                <div className="iv-hero__inner iv-page__inner">
                     <div className="iv-hero__eyebrow">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
@@ -595,12 +589,11 @@ const Interview = () => {
                     </div>
 
                     <h1 className="iv-hero__title">{reportTitle}</h1>
-
-                    <p className="iv-hero__sub">{reportSubtitle}</p>
                 </div>
             </header>
 
-            <div className="iv-body">
+            <div className="iv-page__inner">
+                <div className="iv-body">
                 <aside className="iv-sidebar">
                     <nav className="iv-nav">
                         <p className="iv-nav__label">SECTIONS</p>
@@ -695,6 +688,7 @@ const Interview = () => {
                         </div>
                     </div>
                 </aside>
+                </div>
             </div>
         </div>
     )

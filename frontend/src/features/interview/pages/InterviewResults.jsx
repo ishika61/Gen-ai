@@ -45,9 +45,9 @@ export default function InterviewResults() {
         ["HR / Behavioral", analysis.scores.behavioralScore]
     ];
 
-    const topStrength = analysis.strengths[0] || "Completed the interview and attempted the role-specific questions.";
-    const mainGap = analysis.weaknesses[0] || "Needs more specific examples and implementation detail.";
-    const nextStep = analysis.improvementRoadmap[0] || "Practice structured answers with clear examples and results.";
+    const topStrength = analysis.heroInsights?.topStrength || "Finished the session and stayed engaged.";
+    const mainGap = analysis.heroInsights?.mainGap || "Add more project proof with stack and results.";
+    const nextStep = analysis.heroInsights?.nextStep || "Practice a short intro and one project story.";
 
     return (
         <main className="ir-page">
@@ -98,10 +98,10 @@ export default function InterviewResults() {
 
                 <div className="ir-summary-grid">
                     <div><span>Duration</span><strong>{analysis.summary.duration}</strong></div>
-                    <div><span>Total Questions</span><strong>{analysis.summary.totalQuestions}</strong></div>
-                    <div><span>Easy</span><strong>{analysis.summary.easyQuestions}</strong></div>
-                    <div><span>Medium</span><strong>{analysis.summary.mediumQuestions}</strong></div>
-                    <div><span>Hard</span><strong>{analysis.summary.hardQuestions}</strong></div>
+                    <div><span>Questions</span><strong>{analysis.summary.totalQuestions}</strong></div>
+                    <div><span>Answered</span><strong>{analysis.summary.answeredCount}</strong></div>
+                    <div><span>Missed</span><strong>{analysis.summary.missedCount}</strong></div>
+                    <div><span>Avg Score</span><strong>{analysis.summary.avgAnswerScore}%</strong></div>
                     <div><span>Readiness</span><strong>{analysis.readinessLevel}</strong></div>
                 </div>
             </section>
@@ -113,6 +113,7 @@ export default function InterviewResults() {
                         {analysis.strengths.map((item, index) => (
                             <li key={index}>
                                 <span className="ir-list-tag">Good</span>
+                                {" "}
                                 {item}
                             </li>
                         ))}
@@ -127,6 +128,7 @@ export default function InterviewResults() {
                                 <span className="ir-list-tag ir-list-tag--warning">
                                     {index === 0 ? "High priority" : "Focus"}
                                 </span>
+                                {" "}
                                 {item}
                             </li>
                         ))}
@@ -162,7 +164,10 @@ export default function InterviewResults() {
                         <article className="ir-review-card" key={review.number}>
                             <div className="ir-review-card__top">
                                 <h3>Question {review.number}</h3>
-                                <span>{review.difficulty}</span>
+                                <div className="ir-review-meta">
+                                    <span>{review.difficulty}</span>
+                                    <span>{review.score}%</span>
+                                </div>
                             </div>
 
                             <div className="ir-review-block">
@@ -195,9 +200,14 @@ export default function InterviewResults() {
                                 </div>
                             </div>
 
+                            <div className="ir-review-block ir-review-block--model">
+                                <strong>Model Answer</strong>
+                                <p>{review.modelAnswer}</p>
+                            </div>
+
                             <div className="ir-review-block">
-                                <strong>Ideal Answer</strong>
-                                <p>{review.idealAnswer}</p>
+                                <strong>Answer Structure</strong>
+                                <p>{review.answerGuide}</p>
                             </div>
 
                             <div className="ir-review-block">
